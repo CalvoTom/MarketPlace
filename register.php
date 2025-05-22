@@ -31,6 +31,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $_SESSION["email"] = $email;
             $_SESSION["nom"] = $nom;
             $_SESSION["prenom"] = $prenom;
+
+            header("Location: home.php");
+            exit();
         } catch (PDOException $e) {
             if ($e->getCode() == 23000) {
                 $error = "Un compte avec cet email existe déjà.";
