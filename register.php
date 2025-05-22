@@ -1,17 +1,6 @@
-<!DOCTYPE html>
 <?php
-// Connexion à la base de données
-$servername = "localhost";
-$username = "root";
-$password = "";
-$database = "myDB";
-
-try {
-    $conn = new PDO("mysql:host=$servername;dbname=$database", $username, $password);
-    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Connection failed: " . $e->getMessage());
-}
+session_start();
+require_once 'includes/db.php';
 
 $success = $error = "";
 
@@ -19,9 +8,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $nom = htmlspecialchars($_POST["nom"]);
     $prenom = htmlspecialchars($_POST["prenom"]);
     $email = htmlspecialchars($_POST["email"]);
-    $mot_de_passe = password_hash($_POST["mot_de_passe"], PASSWORD_DEFAULT);
+    $mot_de_passe_brut = $_POST["mot_de_passe"];
+    $mot_de_passe = password_hash($mot_de_passe_brut, PASSWORD_DEFAULT);
 
-    if (!empty($nom) && !empty($prenom) && !empty($email) && !empty($_POST["mot_de_passe"])) {
+    if (!empty($nom) && !empty($prenom) && !empty($email) && !empty($mot_de_passe_brut)) {
         $sql = "INSERT INTO utilisateurs (nom, prenom, email, mot_de_passe) 
                 VALUES (:nom, :prenom, :email, :mot_de_passe)";
         $stmt = $conn->prepare($sql);
@@ -32,7 +22,15 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 ':email' => $email,
                 ':mot_de_passe' => $mot_de_passe
             ]);
-            $success = "Compte créé avec succès.";
+
+            // Récupérer l'ID de l'utilisateur
+            $user_id = $conn->lastInsertId();
+
+            // Stocker l'utilisateur en session
+            $_SESSION["user_id"] = $user_id;
+            $_SESSION["email"] = $email;
+            $_SESSION["nom"] = $nom;
+            $_SESSION["prenom"] = $prenom;
         } catch (PDOException $e) {
             if ($e->getCode() == 23000) {
                 $error = "Un compte avec cet email existe déjà.";
@@ -45,6 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 ?>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
