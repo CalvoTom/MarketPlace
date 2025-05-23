@@ -44,7 +44,7 @@
     <p><strong>Nom :</strong> <?php echo htmlspecialchars($_SESSION["nom"]); ?></p>
     <p><strong>Prénom :</strong> <?php echo htmlspecialchars($_SESSION["prenom"]); ?></p>
     <p><strong>Email :</strong> <?php echo htmlspecialchars($_SESSION["email"]); ?></p>
-    <?php include 'solde.php'; ?>
+    <?php include 'includes/solde.php'; ?>
 
     <p><strong>Photo de profil :</strong><br>
         <img src="<?= $profileImage ?>" alt="Photo de profil" width="150" height="150" style="border-radius: 50%; object-fit: cover;">
