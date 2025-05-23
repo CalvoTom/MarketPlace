@@ -2,6 +2,8 @@
 session_start();
 require_once 'includes/db.php';
 
+unset($_SESSION["profil_edit_authorized"]);
+
 // Redirection si l'utilisateur n'est pas connecté
 if (!isset($_SESSION["user_id"])) {
     header("Location: login.php");
