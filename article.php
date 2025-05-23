@@ -2,52 +2,61 @@
 // Connexion à la base de données
 $pdo = new PDO('mysql:host=localhost;dbname=mydb;charset=utf8', 'root', '');
 
-// Ajouter un nouvel article si les données sont envoyées en POST
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Récupérer les données POST
-    $name = $_POST['name'] ?? null;
-    $description = $_POST['description'] ?? null;
-    $price = $_POST['price'] ?? null;
-    $author_id = $_POST['author_id'] ?? null;
-    $image_link = $_POST['image_link'] ?? null;
-
-    // Vérifier les champs obligatoires
-    if ($name && $price && $author_id) {
-        $stmt = $pdo->prepare('INSERT INTO Article (name, description, price, author_id, image_link) VALUES (?, ?, ?, ?, ?)');
-        $stmt->execute([$name, $description, $price, $author_id, $image_link]);
-        echo "Article ajouté avec succès.\n";
-    } else {
-        echo "Champs obligatoires manquants (name, price, author_id).\n";
-    }
-    exit;
-}
+// Requête pour récupérer tous les articles, les plus récents en premier
+$stmt = $pdo->query('SELECT id, name, description, price, publication_date, author_id, image_link FROM Article ORDER BY publication_date DESC');
+$articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Ajouter un Article</title>
+    <title>Liste des Articles en Vente</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .article {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+        }
+        .article img {
+            max-width: 200px;
+            height: auto;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .article h2 {
+            margin: 0;
+        }
+        .article small {
+            color: #555;
+        }
+    </style>
 </head>
 <body>
-    <h1>Ajouter un Article</h1>
-    <form method="post" action="">
-        <label for="name">Nom de l'article* :</label>
-        <input type="text" id="name" name="name" required><br><br>
+    <h1>Articles en Vente</h1>
 
-        <label for="description">Description :</label>
-        <textarea id="description" name="description"></textarea><br><br>
-
-        <label for="price">Prix* :</label>
-        <input type="number" id="price" name="price" step="0.01" required><br><br>
-
-        <label for="author_id">ID de l'auteur* :</label>
-        <input type="number" id="author_id" name="author_id" required><br><br>
-
-        <label for="image_link">Lien de l'image :</label>
-        <input type="text" id="image_link" name="image_link"><br><br>
-
-        <button type="submit">Ajouter</button>
-    </form>
+    <?php if (count($articles) > 0): ?>
+        <?php foreach ($articles as $article): ?>
+            <div class="article">
+                <?php if (!empty($article['image_link'])): ?>
+                    <img src="<?= htmlspecialchars($article['image_link']) ?>" alt="Image de l'article">
+                <?php endif; ?>
+                <h2><?= htmlspecialchars($article['name']) ?></h2>
+                <p><?= nl2br(htmlspecialchars($article['description'])) ?></p>
+                <p><strong>Prix :</strong> <?= number_format($article['price'], 2, ',', ' ') ?> €</p>
+                <small>
+                    Publié le <?= date('d/m/Y H:i', strtotime($article['publication_date'])) ?> |
+                    Auteur ID : <?= htmlspecialchars($article['author_id']) ?> |
+                    Article ID : <?= htmlspecialchars($article['id']) ?>
+                </small>
+            </div>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <p>Aucun article en vente pour le moment.</p>
+    <?php endif; ?>
 </body>
 </html>
