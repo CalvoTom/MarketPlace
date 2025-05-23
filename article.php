@@ -1,9 +1,22 @@
 <?php
-// Connexion à la base de données
-$pdo = new PDO('mysql:host=localhost;dbname=mydb;charset=utf8', 'root', '');
+session_start();
+require_once 'includes/db.php';
 
-// Requête pour récupérer tous les articles, les plus récents en premier
-$stmt = $pdo->query('SELECT id, name, description, price, publication_date, author_id, image_link FROM Article ORDER BY publication_date DESC');
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit();
+}
+
+$pdo = $conn;
+
+// Requête avec jointure pour récupérer les infos utilisateur de l'auteur
+$sql = "SELECT a.id, a.name, a.description, a.price, a.publication_date, a.author_id, a.image_link,
+        u.nom, u.prenom
+        FROM Article a
+        LEFT JOIN utilisateurs u ON a.author_id = u.id
+        ORDER BY a.publication_date DESC";
+
+$stmt = $pdo->query($sql);
 $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -34,10 +47,19 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .article small {
             color: #555;
         }
+        a {
+            text-decoration: none;
+            color: #337ab7;
+            margin-right: 10px;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
     <h1>Articles en Vente</h1>
+    <a href="vente.php">Vendre un article</a>
 
     <?php if (count($articles) > 0): ?>
         <?php foreach ($articles as $article): ?>
@@ -50,8 +72,7 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <p><strong>Prix :</strong> <?= number_format($article['price'], 2, ',', ' ') ?> €</p>
                 <small>
                     Publié le <?= date('d/m/Y H:i', strtotime($article['publication_date'])) ?> |
-                    Auteur ID : <?= htmlspecialchars($article['author_id']) ?> |
-                    Article ID : <?= htmlspecialchars($article['id']) ?>
+                    Auteur : <?= htmlspecialchars($article['prenom'] . ' ' . $article['nom']) ?>
                 </small>
             </div>
         <?php endforeach; ?>
