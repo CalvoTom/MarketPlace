@@ -1,5 +1,6 @@
 <?php
 session_start();
+require_once 'includes/db.php';
 
 // Rediriger vers la page de connexion si l'utilisateur n'est pas connecté
 if (!isset($_SESSION["user_id"])) {
@@ -32,6 +33,9 @@ if (isset($_GET['logout'])) {
     <p><strong>Nom :</strong> <?php echo htmlspecialchars($_SESSION["nom"]); ?></p>
     <p><strong>Prénom :</strong> <?php echo htmlspecialchars($_SESSION["prenom"]); ?></p>
     <p><strong>Email :</strong> <?php echo htmlspecialchars($_SESSION["email"]); ?></p>
+
+    <!-- Affichage du solde -->
+    <?php include 'solde.php'; ?>
 
     <form method="get" action="">
         <input type="submit" name="logout" value="Se déconnecter">
