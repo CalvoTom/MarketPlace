@@ -620,28 +620,30 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <div class="products-grid">
                 <?php if (count($articles) > 0): ?>
                     <?php foreach ($articles as $article): ?>
-                        <div class="product-card fade-in">
-                            <?php if (!empty($article['image_link'])): ?>
-                                <img src="<?= htmlspecialchars($article['image_link']) ?>" alt="<?= htmlspecialchars($article['name']) ?>" class="product-image">
-                            <?php else: ?>
-                                <div class="product-image" style="background: linear-gradient(135deg, #F8582E, #e04a26); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">
-                                    📷 Aucune image
-                                </div>
-                            <?php endif; ?>
-                            <div class="product-info">
-                                <h3 class="product-title"><?= htmlspecialchars($article['name']) ?></h3>
-                                <p class="product-description"><?= nl2br(htmlspecialchars($article['description'])) ?></p>
-                                <p class="product-price"><?= number_format($article['price'], 2, ',', ' ') ?> €</p>
-                                <div class="product-meta">
-                                    <span class="product-author">
-                                        Par <?= htmlspecialchars($article['prenom'] . ' ' . $article['nom']) ?>
-                                    </span>
-                                    <span class="product-date">
-                                        Publié le <?= date('d/m/Y H:i', strtotime($article['publication_date'])) ?>
-                                    </span>
+                        <a href="article_detail.php?id=<?= $article['id'] ?>" style="text-decoration:none;color:inherit;">
+                            <div class="product-card fade-in">
+                                <?php if (!empty($article['image_link'])): ?>
+                                    <img src="<?= htmlspecialchars($article['image_link']) ?>" alt="<?= htmlspecialchars($article['name']) ?>" class="product-image">
+                                <?php else: ?>
+                                    <div class="product-image" style="background: linear-gradient(135deg, #F8582E, #e04a26); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">
+                                        📷 Aucune image
+                                    </div>
+                                <?php endif; ?>
+                                <div class="product-info">
+                                    <h3 class="product-title"><?= htmlspecialchars($article['name']) ?></h3>
+                                    <p class="product-description"><?= nl2br(htmlspecialchars($article['description'])) ?></p>
+                                    <p class="product-price"><?= number_format($article['price'], 2, ',', ' ') ?> €</p>
+                                    <div class="product-meta">
+                                        <span class="product-author">
+                                            Par <?= htmlspecialchars($article['prenom'] . ' ' . $article['nom']) ?>
+                                        </span>
+                                        <span class="product-date">
+                                            Publié le <?= date('d/m/Y H:i', strtotime($article['publication_date'])) ?>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <div class="no-articles">
@@ -711,76 +713,66 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     </div>
                 </div>
             </div>
-        </section>
-
         <!-- Footer -->
         <footer class="footer">
             <h2 class="footer-title">MARKETPLACE</h2>
+        </footer>lass="footer">
+    </div>  <h2 class="footer-title">MARKETPLACE</h2>
         </footer>
-    </div>
-
     <script>
         // Smooth scrolling for navigation links
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', function(e) {
                 if (this.getAttribute('href').startsWith('#')) {
-                    e.preventDefault();
+                    e.preventDefault();k', function(e) {
                     // Add smooth scrolling logic here if needed
-                }
+                }   e.preventDefault();
+            });     // Add smooth scrolling logic here if needed
+        });     }
             });
-        });
-
         // Intersection Observer for animations
         const observerOptions = {
-            threshold: 0.1,
+            threshold: 0.1,erver for animations
             rootMargin: '0px 0px -50px 0px'
-        };
-
+        };  threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
         const observer = new IntersectionObserver(function(entries) {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
+                if (entry.isIntersecting) {server(function(entries) {
                     entry.target.style.opacity = '1';
                     entry.target.style.transform = 'translateY(0)';
-                }
-            });
+                }   entry.target.style.opacity = '1';
+            });     entry.target.style.transform = 'translateY(0)';
         }, observerOptions);
-
+            });
         // Observe elements for animation
         document.querySelectorAll('.product-card, .philosophy-card, .testimonial-card').forEach(el => {
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(20px)';
+            el.style.opacity = '0';mation
+            el.style.transform = 'translateY(20px)';hilosophy-card, .testimonial-card').forEach(el => {
             el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);'translateY(20px)';
+        }); el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
             observer.observe(el);
-        });
-
-        // Product card hover effects
-        document.querySelectorAll('.product-card').forEach(card => {
-            card.addEventListener('click', function() {
-                // Ici vous pouvez ajouter la redirection vers la page détail de l'article
-                // window.location.href = 'article.php?id=' + articleId;
-                console.log('Clic sur l\'article');
-            });
-        });
-
         // Button hover effects and interactions
         document.querySelectorAll('button').forEach(button => {
             button.addEventListener('click', function() {
                 // Add click animation
                 this.style.transform = 'scale(0.95)';
-                setTimeout(() => {
-                    this.style.transform = 'scale(1)';
-                }, 150);
-            });
+                setTimeout(() => {ection vers la page détail de l'article
+                    this.style.transform = 'scale(1)'; // window.location.href = 'article.php?id=' + articleId;
+                }, 150);     console.log('Clic sur l\'article');
+            });            });
         });
 
         // Parallax effect for hero section
-        window.addEventListener('scroll', function() {
-            const scrolled = window.pageYOffset;
-            const hero = document.querySelector('.hero');
+        window.addEventListener('scroll', function() {ton').forEach(button => {
+            const scrolled = window.pageYOffset;() {
+            const hero = document.querySelector('.hero');tion
             if (hero) {
-                hero.style.transform = `translateY(${scrolled * 0.1}px)`;
-            }
-        });
-    </script>
+                hero.style.transform = `translateY(${scrolled * 0.1}px)`;ut(() => {
+            }     this.style.transform = 'scale(1)';
+        });     }, 150);
+    </script>            });
 </body>
+</html></body>
 </html>
