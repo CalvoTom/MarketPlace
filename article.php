@@ -466,37 +466,39 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php else: ?>
                 <div class="articles-grid">
                     <?php foreach ($articles as $article): ?>
-                        <div class="article-card" onclick="viewArticle(<?= $article['id'] ?>)">
-                            <?php if (!empty($article['image_link'])): ?>
-                                <img src="<?= htmlspecialchars($article['image_link']) ?>" 
-                                     alt="<?= htmlspecialchars($article['name']) ?>" 
-                                     class="article-image"
-                                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                            <?php else: ?>
-                                <div class="article-image" style="background: linear-gradient(135deg, #F8582E, #e04a26); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">
-                                    📷 Aucune image
-                                </div>
-                            <?php endif; ?>
-                            
-                            <div class="article-content">
-                                <h3 class="article-name"><?= htmlspecialchars($article['name']) ?></h3>
-                                
-                                <?php if (!empty($article['description'])): ?>
-                                    <p class="article-description"><?= htmlspecialchars($article['description']) ?></p>
+                        <a href="article_detail.php?id=<?= $article['id'] ?>" style="text-decoration: none; color: inherit;">
+                            <div class="article-card">
+                                <?php if (!empty($article['image_link'])): ?>
+                                    <img src="<?= htmlspecialchars($article['image_link']) ?>" 
+                                         alt="<?= htmlspecialchars($article['name']) ?>" 
+                                         class="article-image"
+                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                <?php else: ?>
+                                    <div class="article-image" style="background: linear-gradient(135deg, #F8582E, #e04a26); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">
+                                        📷 Aucune image
+                                    </div>
                                 <?php endif; ?>
                                 
-                                <div class="article-price"><?= number_format($article['price'], 2) ?> €</div>
-                                
-                                <div class="article-meta">
-                                    <span class="article-author">
-                                        Par <?= htmlspecialchars($article['prenom']) ?> <?= htmlspecialchars($article['nom']) ?>
-                                    </span>
-                                    <span class="article-date">
-                                        <?= date('d/m/Y', strtotime($article['publication_date'])) ?>
-                                    </span>
+                                <div class="article-content">
+                                    <h3 class="article-name"><?= htmlspecialchars($article['name']) ?></h3>
+                                    
+                                    <?php if (!empty($article['description'])): ?>
+                                        <p class="article-description"><?= htmlspecialchars($article['description']) ?></p>
+                                    <?php endif; ?>
+                                    
+                                    <div class="article-price"><?= number_format($article['price'], 2) ?> €</div>
+                                    
+                                    <div class="article-meta">
+                                        <span class="article-author">
+                                            Par <?= htmlspecialchars($article['prenom']) ?> <?= htmlspecialchars($article['nom']) ?>
+                                        </span>
+                                        <span class="article-date">
+                                            <?= date('d/m/Y', strtotime($article['publication_date'])) ?>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     <?php endforeach; ?>
                 </div>
             <?php endif; ?>
@@ -504,6 +506,10 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
     <script>
+        function viewArticle(id) {
+            window.location.href = 'article_detail.php?id=' + id;
+        }
+        
         // Hover effects for article cards
         document.querySelectorAll('.article-card').forEach(card => {
             card.addEventListener('mouseenter', function() {
