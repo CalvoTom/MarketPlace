@@ -126,28 +126,30 @@ if (isset($_SESSION['user_id'])) {
                 <?php if (count($articles) > 0): ?>
                     <?php foreach ($articles as $article): ?>
                         <div class="product-card">
-                            <?php if (!empty($article['image_url'])): ?>
-                                <img src="<?= htmlspecialchars($article['image_url']) ?>" alt="<?= htmlspecialchars($article['nom']) ?>" class="product-image">
-                            <?php else: ?>
-                                <div class="product-image" style="background: linear-gradient(135deg, #F8582E, #e04a26); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">
-                                    📷 Aucune image
+                            <a href="articleDetail.php?id=<?= $article['id'] ?>" style="text-decoration: none; color: inherit;">
+                                <?php if (!empty($article['image_url'])): ?>
+                                    <img src="<?= htmlspecialchars($article['image_url']) ?>" alt="<?= htmlspecialchars($article['nom']) ?>" class="product-image">
+                                <?php else: ?>
+                                    <div class="product-image" style="background: linear-gradient(135deg, #F8582E, #e04a26); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">
+                                        📷 Aucune image
+                                    </div>
+                                <?php endif; ?>
+                                <div class="product-info">
+                                    <h3 class="product-title"><?= htmlspecialchars($article['nom']) ?></h3>
+                                    <p class="product-description"><?= nl2br(htmlspecialchars($article['description'])) ?></p>
+                                    <p class="product-price"><?= number_format($article['prix'], 2, ',', ' ') ?> €</p>
+                                    <div class="product-meta">
+                                        <span class="product-author">
+                                            Par <?= htmlspecialchars($article['auteur_prenom'] . ' ' . $article['auteur_nom']) ?>
+                                        </span>
+                                        <span class="product-date">
+                                            Publié le <?= date('d/m/Y H:i', strtotime($article['date_publication'])) ?>
+                                        </span>
+                                    </div>
                                 </div>
-                            <?php endif; ?>
-                            <div class="product-info">
-                                <h3 class="product-title"><?= htmlspecialchars($article['nom']) ?></h3>
-                                <p class="product-description"><?= nl2br(htmlspecialchars($article['description'])) ?></p>
-                                <p class="product-price"><?= number_format($article['prix'], 2, ',', ' ') ?> €</p>
-                                <div class="product-meta">
-                                    <span class="product-author">
-                                        Par <?= htmlspecialchars($article['auteur_prenom'] . ' ' . $article['auteur_nom']) ?>
-                                    </span>
-                                    <span class="product-date">
-                                        Publié le <?= date('d/m/Y H:i', strtotime($article['date_publication'])) ?>
-                                    </span>
-                                </div>
-                            </div>
+                            </a>
 
-                            <!-- Interactions Section -->
+                            <!-- Interactions Section reste inchangée -->
                             <div class="product-interactions">
                                 <div class="interactions-bar">
                                     <div class="like-section">

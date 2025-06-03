@@ -1529,6 +1529,16 @@ body {
     max-width: 440px;
     margin: 0 auto;
   }
+
+  .detail-container {
+    flex-direction: column;
+    max-width: 800px;
+  }
+
+  .detail-image-container {
+    max-width: 100%;
+    height: 400px;
+  }
 }
 
 @media (max-width: 768px) {
@@ -1663,6 +1673,10 @@ body {
     font-size: 36px;
     line-height: 44px;
   }
+
+  .detail-container {
+    padding: 16px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1674,4 +1688,102 @@ body {
     margin: 0 auto;
     max-width: 100%;
   }
+}
+
+/* Ajout des styles pour la page de détail d'article */
+.detail-container {
+  display: flex;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto 40px auto;
+  padding: 40px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+.detail-image-container {
+  flex: 1;
+  max-width: 50%;
+}
+
+.detail-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #efefef;
+}
+
+.detail-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.detail-header {
+  border-bottom: 1px solid #eee;
+  padding-bottom: 24px;
+}
+
+.detail-title {
+  font-size: 32px;
+  color: #1e1d19;
+  margin-bottom: 16px;
+}
+
+.detail-price {
+  font-size: 40px;
+  color: #f8582e;
+  font-weight: bold;
+}
+
+.detail-meta {
+  color: #666;
+  font-size: 14px;
+  padding: 24px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.detail-description {
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: auto;
+}
+
+.btn-cart {
+  flex: 1;
+  height: 50px;
+  background: #f8582e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-cart:hover {
+  background: #e04a26;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.back-link:hover {
+  color: #f8582e;
 }
