@@ -2,127 +2,126 @@
 session_start();
 require_once 'includes/db.php';
 
-
-
-// Vérification que l'utilisateur est admin
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+// Vérifier que l'utilisateur est admin
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: index.php");
     exit;
 }
 
-// Suppression utilisateur
-if (isset($_GET['delete_user'])) {
-    $id = intval($_GET['delete_user']);
-    $stmt = $conn->prepare("DELETE FROM utilisateurs WHERE id = ?");
-    $stmt->execute([$id]);
-    header("Location: admin.php");
-    exit;
-}
-
-// Suppression article
-if (isset($_GET['delete_article'])) {
-    $id = intval($_GET['delete_article']);
-    $stmt = $conn->prepare("DELETE FROM articles WHERE id = ?");
-    $stmt->execute([$id]);
-    header("Location: admin.php");
-    exit;
-}
-
 // Récupérer tous les utilisateurs
-$utilisateurs = $conn->query("SELECT id, nom, prenom, email, role, sold, date_creation FROM utilisateurs")->fetchAll(PDO::FETCH_ASSOC);
+$stmtUsers = $conn->prepare("SELECT id, nom, prenom, email, sold, role, date_creation FROM utilisateurs");
+$stmtUsers->execute();
+$utilisateurs = $stmtUsers->fetchAll(PDO::FETCH_ASSOC);
 
-// Récupérer tous les articles avec leurs auteurs
-$articles = $conn->query("
-    SELECT a.id, a.nom, a.description, a.prix, a.date_publication, a.image_url, u.nom AS auteur_nom, u.prenom AS auteur_prenom
-    FROM articles a
+// Récupérer tous les articles
+$stmtArticles = $conn->prepare("
+    SELECT a.*, u.nom AS auteur_nom, u.prenom AS auteur_prenom 
+    FROM articles a 
     JOIN utilisateurs u ON a.auteur_id = u.id
-")->fetchAll(PDO::FETCH_ASSOC);
+    ORDER BY a.date_publication DESC
+");
+$stmtArticles->execute();
+$articles = $stmtArticles->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel</title>
+    <title>Admin - Tableau de bord</title>
+    <link rel="stylesheet" href="assets/css/style.css">
     <style>
-        body { font-family: Arial; margin: 20px; background: #f8f9fa; }
-        h1 { color: #333; }
-        table { width: 100%; border-collapse: collapse; margin-bottom: 40px; background: #fff; }
-        th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
-        th { background-color: #f2f2f2; }
-        a.delete { color: red; text-decoration: none; font-weight: bold; }
-        a.delete:hover { text-decoration: underline; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+        }
+        th {
+            background-color: #eee;
+        }
+        .admin-section {
+            padding: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+        h2 {
+            margin-top: 40px;
+            margin-bottom: 10px;
+        }
+        a.edit-link {
+            color: #007BFF;
+            text-decoration: none;
+        }
+        a.edit-link:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
+    <div class="admin-section">
+        <h1>Tableau de bord Administrateur</h1>
 
-<h1>Panneau d'administration</h1>
+        <!-- Liste des utilisateurs -->
+        <h2>Utilisateurs</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Prénom</th>
+                    <th>Email</th>
+                    <th>Solde (€)</th>
+                    <th>Rôle</th>
+                    <th>Date de création</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($utilisateurs as $user): ?>
+                    <tr>
+                        <td><?= $user['id'] ?></td>
+                        <td><?= htmlspecialchars($user['nom']) ?></td>
+                        <td><?= htmlspecialchars($user['prenom']) ?></td>
+                        <td><?= htmlspecialchars($user['email']) ?></td>
+                        <td><?= number_format($user['sold'], 2, ',', ' ') ?></td>
+                        <td><?= htmlspecialchars($user['role']) ?></td>
+                        <td><?= $user['date_creation'] ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
 
-<h2>Utilisateurs</h2>
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nom</th>
-            <th>Prénom</th>
-            <th>Email</th>
-            <th>Rôle</th>
-            <th>Solde (€)</th>
-            <th>Date création</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php foreach ($utilisateurs as $u): ?>
-        <tr>
-            <td><?= $u['id'] ?></td>
-            <td><?= htmlspecialchars($u['nom']) ?></td>
-            <td><?= htmlspecialchars($u['prenom']) ?></td>
-            <td><?= htmlspecialchars($u['email']) ?></td>
-            <td><?= htmlspecialchars($u['role']) ?></td>
-            <td><?= number_format($u['sold'], 2, ',', ' ') ?></td>
-            <td><?= $u['date_creation'] ?></td>
-            <td><a class="delete" href="?delete_user=<?= $u['id'] ?>" onclick="return confirm('Supprimer cet utilisateur ?')">🗑️</a></td>
-        </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
-
-<h2>Articles</h2>
-<table>
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Nom</th>
-            <th>Description</th>
-            <th>Prix (€)</th>
-            <th>Auteur</th>
-            <th>Date publication</th>
-            <th>Image</th>
-            <th>Action</th>
-        </tr>
-    </thead>
-    <tbody>
-        <?php foreach ($articles as $a): ?>
-        <tr>
-            <td><?= $a['id'] ?></td>
-            <td><?= htmlspecialchars($a['nom']) ?></td>
-            <td><?= htmlspecialchars(substr($a['description'], 0, 50)) ?>...</td>
-            <td><?= number_format($a['prix'], 2, ',', ' ') ?></td>
-            <td><?= htmlspecialchars($a['auteur_prenom'] . ' ' . $a['auteur_nom']) ?></td>
-            <td><?= $a['date_publication'] ?></td>
-            <td>
-                <?php if ($a['image_url']): ?>
-                    <img src="<?= htmlspecialchars($a['image_url']) ?>" alt="image" width="50">
-                <?php else: ?>
-                    N/A
-                <?php endif; ?>
-            </td>
-            <td><a class="delete" href="?delete_article=<?= $a['id'] ?>" onclick="return confirm('Supprimer cet article ?')">🗑️</a></td>
-        </tr>
-        <?php endforeach; ?>
-    </tbody>
-</table>
-
+        <!-- Liste des articles -->
+        <h2>Articles</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Description</th>
+                    <th>Prix (€)</th>
+                    <th>Auteur</th>
+                    <th>Date publication</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($articles as $article): ?>
+                    <tr>
+                        <td><?= $article['id'] ?></td>
+                        <td><?= htmlspecialchars($article['nom']) ?></td>
+                        <td><?= htmlspecialchars(substr($article['description'], 0, 50)) ?>...</td>
+                        <td><?= number_format($article['prix'], 2, ',', ' ') ?></td>
+                        <td><?= htmlspecialchars($article['auteur_prenom']) . ' ' . htmlspecialchars($article['auteur_nom']) ?></td>
+                        <td><?= $article['date_publication'] ?></td>
+                        <td><a class="edit-link" href="editarticle.php?id=<?= $article['id'] ?>">✏️ Modifier</a></td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>
