@@ -18,6 +18,18 @@ if (isset($_GET['logout'])) {
     exit();
 }
 
+// Gestion des messages de suppression
+$message = '';
+if (isset($_GET['deleted']) && $_GET['deleted'] == '1') {
+    $message = '<div class="message success-message">Article supprimé avec succès.</div>';
+} elseif (isset($_GET['error'])) {
+    if ($_GET['error'] == 'unauthorized') {
+        $message = '<div class="message error-message">Vous n\'êtes pas autorisé à supprimer cet article.</div>';
+    } elseif ($_GET['error'] == 'invalid') {
+        $message = '<div class="message error-message">Requête invalide.</div>';
+    }
+}
+
 // Récupération de la photo de profil
 $sql = "SELECT profile_picture FROM utilisateurs WHERE id = :id";
 $stmt = $conn->prepare($sql);
@@ -31,6 +43,18 @@ $stmt_solde->execute([':id' => $_SESSION["user_id"]]);
 $user_solde = $stmt_solde->fetch(PDO::FETCH_ASSOC);
 
 $solde = $user_solde ? $user_solde["sold"] : 0;
+
+// Récupération des articles de l'utilisateur
+$sql_articles = "SELECT a.*, COUNT(DISTINCT l.id) as likes_count, COUNT(DISTINCT c.id) as comments_count
+                FROM articles a
+                LEFT JOIN likes l ON a.id = l.article_id
+                LEFT JOIN commentaires c ON a.id = c.article_id
+                WHERE a.auteur_id = :user_id
+                GROUP BY a.id
+                ORDER BY a.date_publication DESC";
+$stmt_articles = $conn->prepare($sql_articles);
+$stmt_articles->execute([':user_id' => $_SESSION["user_id"]]);
+$user_articles = $stmt_articles->fetchAll(PDO::FETCH_ASSOC);
 
 // Vérifier si une image existe
 $hasImageInDB = !empty($user['profile_picture']);
@@ -57,16 +81,25 @@ $profileImage = $hasImageInDB
                 <a href="index.php" class="nav-link">HOME</a>
                 <a href="articles.php" class="nav-link">ARTICLES</a>
                 <a href="#" class="nav-link">PANIER</a>
-                <a href="profile.php" class="nav-link active">PROFILE</a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="profile.php" class="nav-link active">PROFILE</a>
+                    <a href="articleLike.php" class="nav-link nav-heart">❤️</a>
+                <?php endif; ?>
             </div>
             <div class="nav-buttons">
-                <a href="register.php" class="btn-secondary">S'inscrire</a>
-                <a href="vente.php" class="btn-primary">Vends tes articles !</a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="profile.php" class="btn-secondary">Mon Profil</a>
+                    <a href="vente.php" class="btn-primary">Vends tes articles !</a>
+                <?php else: ?>
+                    <a href="register.php" class="btn-secondary">S'inscrire</a>
+                    <a href="login.php" class="btn-primary">Se connecter</a>
+                <?php endif; ?>
             </div>
         </nav>
 
         <!-- Profile Section -->
         <section class="profile-section fade-in">
+            <?= $message ?>
             <!-- Profile Header -->
             <div class="profile-header">
                 <img src="<?= $profileImage ?>" alt="Photo de profil" class="profile-avatar">
@@ -107,6 +140,18 @@ $profileImage = $hasImageInDB
                         <span class="detail-label">Membre depuis</span>
                         <span class="detail-value">Janvier 2024</span>
                     </div>
+                    
+                    <!-- Password Section dans la même carte -->
+                    <div class="password-section-inline">
+                        <h4 class="password-title">🔒 Sécurité du compte</h4>
+                        <p class="password-description">
+                            Modifiez votre mot de passe pour renforcer la sécurité de votre compte
+                        </p>
+                        <a href="changePassword.php" class="btn-password">
+                            <span>🔑</span>
+                            Modifier le mot de passe
+                        </a>
+                    </div>
                 </div>
 
                 <!-- Solde et finances -->
@@ -119,6 +164,78 @@ $profileImage = $hasImageInDB
                         <div class="solde-label">Solde disponible</div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Mes Articles Section -->
+            <div class="user-articles-section">
+                <div class="articles-header">
+                    <div class="header-content">
+                        <div class="articles-icon">📝</div>
+                        <div>
+                            <h3 class="articles-title">Mes articles</h3>
+                            <p class="articles-subtitle">Gérez vos articles en vente</p>
+                        </div>
+                    </div>
+                    <div class="articles-count">
+                        <?= count($user_articles) ?> article<?= count($user_articles) > 1 ? 's' : '' ?>
+                    </div>
+                </div>
+
+                <?php if (empty($user_articles)): ?>
+                    <div class="no-articles">
+                        <div class="no-articles-icon">📦</div>
+                        <h4 class="no-articles-title">Aucun article en vente</h4>
+                        <p class="no-articles-text">
+                            Vous n'avez pas encore mis d'articles en vente.<br>
+                            Commencez dès maintenant !
+                        </p>
+                        <a href="vente.php" class="btn-sell">
+                            <span>💰</span>
+                            Vendre un article
+                        </a>
+                    </div>
+                <?php else: ?>
+                    <div class="user-articles-grid">
+                        <?php foreach ($user_articles as $article): ?>
+                            <div class="user-article-card">
+                                <a href="articleDetail.php?id=<?= $article['id'] ?>" style="text-decoration: none; color: inherit;">
+                                    <?php if (!empty($article['image_url'])): ?>
+                                        <img src="<?= htmlspecialchars($article['image_url']) ?>" 
+                                             alt="<?= htmlspecialchars($article['nom']) ?>" 
+                                             class="article-image"
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                        <div class="article-image" style="display: none; background: linear-gradient(135deg, #F8582E, #e04a26); color: white; font-size: 18px;">
+                                            📷 Image non disponible
+                                        </div>
+                                    <?php else: ?>
+                                        <div class="article-image" style="background: linear-gradient(135deg, #F8582E, #e04a26); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">
+                                            📷 Aucune image
+                                        </div>
+                                    <?php endif; ?>
+                                    
+                                    <div class="article-content">
+                                        <h4 class="article-name"><?= htmlspecialchars($article['nom']) ?></h4>
+                                        
+                                        <?php if (!empty($article['description'])): ?>
+                                            <p class="article-description"><?= htmlspecialchars($article['description']) ?></p>
+                                        <?php endif; ?>
+                                        
+                                        <div class="article-price"><?= number_format($article['prix'], 2, ',', ' ') ?> €</div>
+                                        
+                                        <div class="article-meta">
+                                            <span class="article-stats">
+                                                ❤️ <?= $article['likes_count'] ?> | 💬 <?= $article['comments_count'] ?>
+                                            </span>
+                                            <span class="article-date">
+                                                <?= date('d/m/Y', strtotime($article['date_publication'])) ?>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
             </div>
         </section>
     </div>
@@ -170,6 +287,25 @@ $profileImage = $hasImageInDB
             }
             
             requestAnimationFrame(update);
+        }
+
+        // Fonction de suppression d'article
+        function deleteArticle(articleId) {
+            if (confirm('Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible.')) {
+                // Créer un formulaire pour envoyer la requête de suppression
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = 'delete-article.php';
+                
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'article_id';
+                input.value = articleId;
+                
+                form.appendChild(input);
+                document.body.appendChild(form);
+                form.submit();
+            }
         }
     </script>
 </body>

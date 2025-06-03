@@ -75,11 +75,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <a href="index.php" class="nav-link">HOME</a>
                 <a href="articles.php" class="nav-link">ARTICLES</a>
                 <a href="#" class="nav-link">PANIER</a>
-                <a href="profile.php" class="nav-link">PROFILE</a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="profile.php" class="nav-link">PROFILE</a>
+                    <a href="articleLike.php" class="nav-link nav-heart">❤️</a>
+                <?php endif; ?>
             </div>
             <div class="nav-buttons">
-                <a href="register.php" class="btn-secondary active">S'inscrire</a>
-                <a href="vente.php" class="btn-primary">Vends tes articles !</a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="profile.php" class="btn-secondary">Mon Profil</a>
+                    <a href="vente.php" class="btn-primary">Vends tes articles !</a>
+                <?php else: ?>
+                    <a href="register.php" class="btn-secondary">S'inscrire</a>
+                    <a href="login.php" class="btn-primary">Se connecter</a>
+                <?php endif; ?>
             </div>
         </nav>
 

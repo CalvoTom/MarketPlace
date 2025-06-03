@@ -91,6 +91,7 @@ if (isset($_SESSION['user_id'])) {
                 <a href="#" class="nav-link">PANIER</a>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="profile.php" class="nav-link">PROFILE</a>
+                    <a href="articleLike.php" class="nav-link nav-heart">❤️</a>
                 <?php endif; ?>
             </div>
             <div class="nav-buttons">

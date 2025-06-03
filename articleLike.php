@@ -2,32 +2,39 @@
 session_start();
 require_once 'includes/db.php';
 
-// Traitement des actions (likes et commentaires)
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: login.php');
-        exit();
-    }
+// Redirection si l'utilisateur n'est pas connecté
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit();
+}
 
+// Récupération des articles likés par l'utilisateur
+$sql = "SELECT a.*, u.nom, u.prenom,
+        COUNT(DISTINCT l2.id) as likes_count,
+        COUNT(DISTINCT c.id) as comments_count
+        FROM articles a 
+        JOIN likes l ON a.id = l.article_id
+        JOIN utilisateurs u ON a.auteur_id = u.id 
+        LEFT JOIN likes l2 ON a.id = l2.article_id
+        LEFT JOIN commentaires c ON a.id = c.article_id
+        WHERE l.utilisateur_id = ?
+        GROUP BY a.id
+        ORDER BY l.date_like DESC";
+$stmt = $conn->prepare($sql);
+$stmt->execute([$_SESSION['user_id']]);
+$liked_articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Traitement des actions (unlike et commentaires)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $user_id = $_SESSION['user_id'];
     
-    // Gestion des likes
+    // Gestion des likes (unlike)
     if (isset($_POST['action']) && $_POST['action'] === 'toggle_like') {
         $article_id = (int)$_POST['article_id'];
         
-        // Vérifier si l'utilisateur a déjà liké
-        $check_like = $conn->prepare("SELECT id FROM likes WHERE utilisateur_id = ? AND article_id = ?");
-        $check_like->execute([$user_id, $article_id]);
-        
-        if ($check_like->fetch()) {
-            // Supprimer le like
-            $delete_like = $conn->prepare("DELETE FROM likes WHERE utilisateur_id = ? AND article_id = ?");
-            $delete_like->execute([$user_id, $article_id]);
-        } else {
-            // Ajouter le like
-            $add_like = $conn->prepare("INSERT INTO likes (utilisateur_id, article_id) VALUES (?, ?)");
-            $add_like->execute([$user_id, $article_id]);
-        }
+        // Supprimer le like (puisqu'on est sur la page des articles likés)
+        $delete_like = $conn->prepare("DELETE FROM likes WHERE utilisateur_id = ? AND article_id = ?");
+        $delete_like->execute([$user_id, $article_id]);
     }
     
     // Gestion des commentaires
@@ -45,29 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Location: ' . $_SERVER['PHP_SELF']);
     exit();
 }
-
-// Récupération de tous les articles avec likes et commentaires
-$sql = "SELECT a.*, u.nom, u.prenom,
-        COUNT(DISTINCT l.id) as likes_count,
-        COUNT(DISTINCT c.id) as comments_count
-        FROM articles a 
-        JOIN utilisateurs u ON a.auteur_id = u.id 
-        LEFT JOIN likes l ON a.id = l.article_id
-        LEFT JOIN commentaires c ON a.id = c.article_id
-        GROUP BY a.id
-        ORDER BY a.date_publication DESC";
-$stmt = $conn->prepare($sql);
-$stmt->execute();
-$articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Pour chaque article, vérifier si l'utilisateur connecté a liké
-if (isset($_SESSION['user_id'])) {
-    foreach ($articles as &$article) {
-        $check_user_like = $conn->prepare("SELECT id FROM likes WHERE utilisateur_id = ? AND article_id = ?");
-        $check_user_like->execute([$_SESSION['user_id'], $article['id']]);
-        $article['user_liked'] = $check_user_like->fetch() ? true : false;
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -75,7 +59,7 @@ if (isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarketPlace - Tous les articles</title>
+    <title>MarketPlace - Mes articles favoris</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -86,7 +70,7 @@ if (isset($_SESSION['user_id'])) {
             <a href="index.php" class="logo">MarketPlace</a>
             <div class="nav-links">
                 <a href="index.php" class="nav-link">HOME</a>
-                <a href="articles.php" class="nav-link active">ARTICLES</a>
+                <a href="articles.php" class="nav-link">ARTICLES</a>
                 <a href="#" class="nav-link">PANIER</a>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="profile.php" class="nav-link">PROFILE</a>
@@ -104,48 +88,41 @@ if (isset($_SESSION['user_id'])) {
             </div>
         </nav>
 
-        <!-- Articles Section -->
+        <!-- Liked Articles Section -->
         <section class="articles-section">
             <!-- Articles Header -->
             <div class="articles-header">
                 <div class="header-content">
-                    <div class="articles-icon">🛍️</div>
+                    <div class="articles-icon">❤️</div>
                     <div>
-                        <h1 class="articles-title">Tous les articles</h1>
-                        <p class="articles-subtitle">Découvrez tous les articles disponibles sur notre marketplace</p>
+                        <h1 class="articles-title">Mes articles favoris</h1>
+                        <p class="articles-subtitle">Tous les articles que vous avez aimés</p>
                     </div>
                 </div>
                 <div class="articles-count">
-                    <?= count($articles) ?> article<?= count($articles) > 1 ? 's' : '' ?>
+                    <?= count($liked_articles) ?> article<?= count($liked_articles) > 1 ? 's' : '' ?>
                 </div>
             </div>
 
             <!-- Articles Grid -->
-            <?php if (empty($articles)): ?>
+            <?php if (empty($liked_articles)): ?>
                 <div class="no-articles">
-                    <div class="no-articles-icon">📦</div>
-                    <h2 class="no-articles-title">Aucun article disponible</h2>
+                    <div class="no-articles-icon">💔</div>
+                    <h2 class="no-articles-title">Aucun article favori</h2>
                     <p class="no-articles-text">
-                        Il n'y a pas encore d'articles en vente sur notre marketplace.<br>
-                        Soyez le premier à publier un article !
+                        Vous n'avez pas encore d'articles favoris.<br>
+                        Explorez notre marketplace et likez les articles qui vous plaisent !
                     </p>
-                    <?php if (isset($_SESSION['user_id'])): ?>
-                        <a href="vente.php" class="btn-sell">
-                            <span>💰</span>
-                            Vendre un article
-                        </a>
-                    <?php else: ?>
-                        <a href="register.php" class="btn-sell">
-                            <span>👤</span>
-                            S'inscrire pour vendre
-                        </a>
-                    <?php endif; ?>
+                    <a href="articles.php" class="btn-sell">
+                        <span>🛍️</span>
+                        Découvrir les articles
+                    </a>
                 </div>
             <?php else: ?>
                 <div class="articles-grid">
-                    <?php foreach ($articles as $article): ?>
+                    <?php foreach ($liked_articles as $article): ?>
                         <div class="article-card">
-                            <a href="articleDetail.php?id=<?= $article['id'] ?>" style="text-decoration: none; color: inherit;">
+                            <a href="article-detail.php?id=<?= $article['id'] ?>" style="text-decoration: none; color: inherit;">
                                 <?php if (!empty($article['image_url'])): ?>
                                     <img src="<?= htmlspecialchars($article['image_url']) ?>" 
                                          alt="<?= htmlspecialchars($article['nom']) ?>" 
@@ -180,21 +157,17 @@ if (isset($_SESSION['user_id'])) {
                                 </div>
                             </a>
 
-                            <!-- Interactions Section reste inchangée -->
+                            <!-- Interactions Section -->
                             <div class="article-interactions">
                                 <div class="interactions-bar">
                                     <div class="like-section">
-                                        <?php if (isset($_SESSION['user_id'])): ?>
-                                            <form method="post" style="display: inline;">
-                                                <input type="hidden" name="action" value="toggle_like">
-                                                <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
-                                                <button type="submit" class="like-btn <?= isset($article['user_liked']) && $article['user_liked'] ? 'liked' : '' ?>">
-                                                    <?= isset($article['user_liked']) && $article['user_liked'] ? '❤️' : '🤍' ?>
-                                                </button>
-                                            </form>
-                                        <?php else: ?>
-                                            <span class="like-btn">🤍</span>
-                                        <?php endif; ?>
+                                        <form method="post" style="display: inline;">
+                                            <input type="hidden" name="action" value="toggle_like">
+                                            <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
+                                            <button type="submit" class="like-btn liked" title="Retirer des favoris">
+                                                ❤️
+                                            </button>
+                                        </form>
                                         <span class="like-count"><?= $article['likes_count'] ?> like<?= $article['likes_count'] > 1 ? 's' : '' ?></span>
                                     </div>
                                     <button class="comments-toggle" onclick="toggleComments(<?= $article['id'] ?>)">
@@ -204,14 +177,12 @@ if (isset($_SESSION['user_id'])) {
 
                                 <!-- Comments Section -->
                                 <div class="comments-section" id="comments-<?= $article['id'] ?>">
-                                    <?php if (isset($_SESSION['user_id'])): ?>
-                                        <form method="post" class="comment-form">
-                                            <input type="hidden" name="action" value="add_comment">
-                                            <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
-                                            <textarea name="contenu" class="comment-input" placeholder="Écrivez votre commentaire..." required></textarea>
-                                            <button type="submit" class="comment-submit">Commenter</button>
-                                        </form>
-                                    <?php endif; ?>
+                                    <form method="post" class="comment-form">
+                                        <input type="hidden" name="action" value="add_comment">
+                                        <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
+                                        <textarea name="contenu" class="comment-input" placeholder="Écrivez votre commentaire..." required></textarea>
+                                        <button type="submit" class="comment-submit">Commenter</button>
+                                    </form>
 
                                     <div class="comments-list">
                                         <?php
