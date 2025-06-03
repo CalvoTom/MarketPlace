@@ -21,6 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $_SESSION["nom"] = $utilisateur["nom"];
             $_SESSION["prenom"] = $utilisateur["prenom"];
             $_SESSION["role"] = $utilisateur["role"];
+            $_SESSION["is_admin"] = ($utilisateur["role"] === 'admin'); // 🔧 ligne ajoutée
 
             header("Location: index.php");
             exit();
@@ -32,6 +33,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     }
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="fr">

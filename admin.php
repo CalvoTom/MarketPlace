@@ -39,6 +39,7 @@ $articles = $stmtArticles->fetchAll(PDO::FETCH_ASSOC);
         th, td {
             border: 1px solid #ccc;
             padding: 8px;
+            text-align: left;
         }
         th {
             background-color: #eee;
@@ -55,8 +56,21 @@ $articles = $stmtArticles->fetchAll(PDO::FETCH_ASSOC);
         a.edit-link {
             color: #007BFF;
             text-decoration: none;
+            margin-right: 10px;
         }
         a.edit-link:hover {
+            text-decoration: underline;
+        }
+        form.inline-form {
+            display: inline;
+        }
+        button.delete-btn {
+            background-color: transparent;
+            color: red;
+            border: none;
+            cursor: pointer;
+        }
+        button.delete-btn:hover {
             text-decoration: underline;
         }
     </style>
@@ -77,6 +91,7 @@ $articles = $stmtArticles->fetchAll(PDO::FETCH_ASSOC);
                     <th>Solde (€)</th>
                     <th>Rôle</th>
                     <th>Date de création</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -89,6 +104,16 @@ $articles = $stmtArticles->fetchAll(PDO::FETCH_ASSOC);
                         <td><?= number_format($user['sold'], 2, ',', ' ') ?></td>
                         <td><?= htmlspecialchars($user['role']) ?></td>
                         <td><?= $user['date_creation'] ?></td>
+                        <td>
+                            <?php if ($_SESSION['user_id'] != $user['id']): ?>
+                                <form method="POST" action="admin-delete-user.php" class="inline-form" onsubmit="return confirm('Supprimer ce compte ? Cette action est irréversible.')">
+                                    <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
+                                    <button type="submit" class="delete-btn">🗑 Supprimer</button>
+                                </form>
+                            <?php else: ?>
+                                <em>(vous)</em>
+                            <?php endif; ?>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>
@@ -105,7 +130,7 @@ $articles = $stmtArticles->fetchAll(PDO::FETCH_ASSOC);
                     <th>Prix (€)</th>
                     <th>Auteur</th>
                     <th>Date publication</th>
-                    <th>Action</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -117,7 +142,13 @@ $articles = $stmtArticles->fetchAll(PDO::FETCH_ASSOC);
                         <td><?= number_format($article['prix'], 2, ',', ' ') ?></td>
                         <td><?= htmlspecialchars($article['auteur_prenom']) . ' ' . htmlspecialchars($article['auteur_nom']) ?></td>
                         <td><?= $article['date_publication'] ?></td>
-                        <td><a class="edit-link" href="editarticle.php?id=<?= $article['id'] ?>">✏️ Modifier</a></td>
+                        <td>
+                            <a class="edit-link" href="editarticle.php?id=<?= $article['id'] ?>">✏️ Modifier</a>
+                            <form method="POST" action="admin-delete-article.php" class="inline-form" onsubmit="return confirm('Supprimer cet article ? Cette action est irréversible.')">
+                                <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
+                                <button type="submit" class="delete-btn">🗑 Supprimer</button>
+                            </form>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             </tbody>

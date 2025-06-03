@@ -84,26 +84,33 @@ if (isset($_SESSION['user_id'])) {
     <div class="container">
         <!-- Navigation -->
         <nav class="navbar">
-            <a href="index.php" class="logo">MarketPlace</a>
-            <div class="nav-links">
-                <a href="index.php" class="nav-link active">HOME</a>
-                <a href="articles.php" class="nav-link">ARTICLES</a>
-                <a href="#" class="nav-link">PANIER</a>
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="profile.php" class="nav-link">PROFILE</a>
-                    <a href="articleLike.php" class="nav-link nav-heart">❤️</a>
-                <?php endif; ?>
-            </div>
-            <div class="nav-buttons">
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="profile.php" class="btn-secondary">Mon Profil</a>
-                    <a href="vente.php" class="btn-primary">Vends tes articles !</a>
-                <?php else: ?>
-                    <a href="register.php" class="btn-secondary">S'inscrire</a>
-                    <a href="login.php" class="btn-primary">Se connecter</a>
-                <?php endif; ?>
-            </div>
-        </nav>
+    <a href="index.php" class="logo">MarketPlace</a>
+    <div class="nav-links">
+        <a href="index.php" class="nav-link active">HOME</a>
+        <a href="articles.php" class="nav-link">ARTICLES</a>
+        <a href="#" class="nav-link">PANIER</a>
+
+        <?php if (isset($_SESSION['user_id'])): ?>
+            <a href="profile.php" class="nav-link">PROFILE</a>
+            <a href="articleLike.php" class="nav-link nav-heart">❤️</a>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true): ?>
+            <a href="admin.php" class="nav-link">DASHBOARD</a>
+        <?php endif; ?>
+    </div>
+
+    <div class="nav-buttons">
+        <?php if (isset($_SESSION['user_id'])): ?>
+            <a href="profile.php" class="btn-secondary">Mon Profil</a>
+            <a href="vente.php" class="btn-primary">Vends tes articles !</a>
+        <?php else: ?>
+            <a href="register.php" class="btn-secondary">S'inscrire</a>
+            <a href="login.php" class="btn-primary">Se connecter</a>
+        <?php endif; ?>
+    </div>
+</nav>
+
 
         <!-- Hero Section -->
         <section class="hero">
