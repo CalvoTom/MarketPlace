@@ -196,44 +196,70 @@ $profileImage = $hasImageInDB
                     </div>
                 <?php else: ?>
                     <div class="user-articles-grid">
-                        <?php foreach ($user_articles as $article): ?>
-                            <div class="user-article-card">
-                                <a href="articleDetail.php?id=<?= $article['id'] ?>" style="text-decoration: none; color: inherit;">
-                                    <?php if (!empty($article['image_url'])): ?>
-                                        <img src="<?= htmlspecialchars($article['image_url']) ?>" 
-                                             alt="<?= htmlspecialchars($article['nom']) ?>" 
-                                             class="article-image"
-                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                        <div class="article-image" style="display: none; background: linear-gradient(135deg, #F8582E, #e04a26); color: white; font-size: 18px;">
-                                            📷 Image non disponible
-                                        </div>
-                                    <?php else: ?>
-                                        <div class="article-image" style="background: linear-gradient(135deg, #F8582E, #e04a26); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">
-                                            📷 Aucune image
-                                        </div>
-                                    <?php endif; ?>
-                                    
-                                    <div class="article-content">
-                                        <h4 class="article-name"><?= htmlspecialchars($article['nom']) ?></h4>
-                                        
-                                        <?php if (!empty($article['description'])): ?>
-                                            <p class="article-description"><?= htmlspecialchars($article['description']) ?></p>
-                                        <?php endif; ?>
-                                        
-                                        <div class="article-price"><?= number_format($article['prix'], 2, ',', ' ') ?> €</div>
-                                        
-                                        <div class="article-meta">
-                                            <span class="article-stats">
-                                                ❤️ <?= $article['likes_count'] ?> | 💬 <?= $article['comments_count'] ?>
-                                            </span>
-                                            <span class="article-date">
-                                                <?= date('d/m/Y', strtotime($article['date_publication'])) ?>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        <?php endforeach; ?>
+                    <?php foreach ($user_articles as $article): ?>
+    <div class="user-article-card">
+        <a href="articleDetail.php?id=<?= $article['id'] ?>" style="text-decoration: none; color: inherit;">
+            <?php if (!empty($article['image_url'])): ?>
+                <img src="<?= htmlspecialchars($article['image_url']) ?>" 
+                     alt="<?= htmlspecialchars($article['nom']) ?>" 
+                     class="article-image"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="article-image" style="display: none; background: linear-gradient(135deg, #F8582E, #e04a26); color: white; font-size: 18px;">
+                    📷 Image non disponible
+                </div>
+            <?php else: ?>
+                <div class="article-image" style="background: linear-gradient(135deg, #F8582E, #e04a26); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">
+                    📷 Aucune image
+                </div>
+            <?php endif; ?>
+
+            <div class="article-content">
+                <h4 class="article-name"><?= htmlspecialchars($article['nom']) ?></h4>
+                <?php if (!empty($article['description'])): ?>
+                    <p class="article-description"><?= htmlspecialchars($article['description']) ?></p>
+                <?php endif; ?>
+                <div class="article-price"><?= number_format($article['prix'], 2, ',', ' ') ?> €</div>
+                <div class="article-meta">
+                    ❤️ <?= $article['likes_count'] ?> | 💬 <?= $article['comments_count'] ?>
+                    <span class="article-date"><?= date('d/m/Y', strtotime($article['date_publication'])) ?></span>
+                </div>
+            </div>
+        </a>
+
+        <!-- 🔧 Boutons Modifier et Supprimer -->
+        <div class="article-actions" style="margin-top: 10px; display: flex; gap: 10px;">
+            <!-- Modifier -->
+            <a href="editarticle.php?id=<?= $article['id'] ?>" class="btn-edit" style="
+                background-color: #3B82F6;
+                color: white;
+                padding: 6px 12px;
+                border-radius: 5px;
+                text-decoration: none;
+                font-size: 14px;
+                text-align: center;
+            ">
+                ✏️ Modifier
+            </a>
+
+            <!-- Supprimer -->
+            <form action="delete-article.php" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet article ?');">
+                <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
+                <button type="submit" class="btn-delete" style="
+                    background-color: #DC2626;
+                    color: white;
+                    padding: 6px 12px;
+                    border: none;
+                    border-radius: 5px;
+                    font-size: 14px;
+                    cursor: pointer;
+                ">
+                    🗑️ Supprimer
+                </button>
+            </form>
+        </div>
+    </div>
+<?php endforeach; ?>
+
                     </div>
                 <?php endif; ?>
             </div>
