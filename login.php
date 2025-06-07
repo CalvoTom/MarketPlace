@@ -9,13 +9,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $mot_de_passe = $_POST["mot_de_passe"];
 
     if (!empty($email) && !empty($mot_de_passe)) {
-        $sql = "SELECT * FROM utilisateurs WHERE email = :email";
+        $sql = "SELECT id, nom, prenom, email, mot_de_passe FROM utilisateurs WHERE email = :email";
         $stmt = $conn->prepare($sql);
         $stmt->execute([':email' => $email]);
         $utilisateur = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($utilisateur && password_verify($mot_de_passe, $utilisateur['mot_de_passe'])) {
-            // Authentification réussie
             $_SESSION["user_id"] = $utilisateur["id"];
             $_SESSION["email"] = $utilisateur["email"];
             $_SESSION["nom"] = $utilisateur["nom"];

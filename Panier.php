@@ -33,28 +33,29 @@ foreach ($cartItems as $item) {
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    
-    <div class="container">
-        <nav class="navbar">
-            <a href="index.php" class="logo">MarketPlace</a>
-            <div class="nav-links">
-                <a href="index.php" class="nav-link active">HOME</a>
-                <a href="articles.php" class="nav-link">ARTICLES</a>
-                <a href="Panier.php" class="nav-link">PANIER</a>
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="profile.php" class="nav-link">PROFILE</a>
-                <?php endif; ?>
-            </div>
-            <div class="nav-buttons">
-                <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="profile.php" class="btn-secondary">Mon Profil</a>
-                    <a href="vente.php" class="btn-primary">Vends tes articles !</a>
-                <?php else: ?>
-                    <a href="register.php" class="btn-secondary">S'inscrire</a>
-                    <a href="login.php" class="btn-primary">Se connecter</a>
-                <?php endif; ?>
-            </div>
-        </nav>
+    <nav class="navbar">
+        <a href="index.php" class="logo">MarketPlace</a>
+        <div class="nav-links">
+            <a href="index.php" class="nav-link active">HOME</a>
+            <a href="articles.php" class="nav-link">ARTICLES</a>
+            <a href="Panier.php" class="nav-link">PANIER</a>
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <a href="profile.php" class="nav-link">PROFILE</a>
+            <?php endif; ?>
+        </div>
+        <div class="nav-buttons">
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <a href="profile.php" class="btn-secondary">Mon Profil</a>
+                <a href="vente.php" class="btn-primary">Vends tes articles !</a>
+            <?php else: ?>
+                <a href="register.php" class="btn-secondary">S'inscrire</a>
+                <a href="login.php" class="btn-primary">Se connecter</a>
+            <?php endif; ?>
+        </div>
+    </nav>
+
+    <div class="cart-container">
+
         <h1>Mon Panier</h1>
         
         <?php if (empty($cartItems)): ?>
