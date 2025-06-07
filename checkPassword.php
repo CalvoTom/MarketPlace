@@ -43,7 +43,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <div class="nav-links">
                 <a href="index.php" class="nav-link">HOME</a>
                 <a href="articles.php" class="nav-link">ARTICLES</a>
-                <a href="#" class="nav-link">PANIER</a>
+                <a href="Panier.php" class="nav-link">PANIER</a>
                 <a href="profile.php" class="nav-link active">PROFILE</a>
             </div>
             <div class="nav-buttons">

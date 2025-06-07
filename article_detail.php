@@ -227,7 +227,7 @@
             <div class="nav-links">
                 <a href="index.php" class="nav-link">HOME</a>
                 <a href="article" class="nav-link active">ARTICLES</a>
-                <a href="#" class="nav-link">PANIER</a>
+                <a href="Panier.php" class="nav-link">PANIER</a>
                 <a href="profile" class="nav-link">PROFILE</a>
             </div>
             <div class="nav-buttons">

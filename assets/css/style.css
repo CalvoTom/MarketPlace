@@ -7,7 +7,7 @@
 
 body {
   font-family: "Inter", sans-serif;
-  background: #fbf9f5;
+  background: #f5f5f5;
   position: relative;
   width: 100%;
   min-height: 100vh;
@@ -694,6 +694,7 @@ body {
 
 /* Boutons */
 .btn-save,
+.btn-delete,
 .btn-edit,
 .login-button,
 .register-button,
@@ -1767,6 +1768,8 @@ body {
   border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
+  padding-left: 10px;
+  padding-right: 10px;
   cursor: pointer;
   transition: background 0.3s;
 }
@@ -1919,5 +1922,8 @@ body {
 }
 
 .cart-container{
-  top: 200px;
+  top: 134px;
+  position: absolute;
+  left: 24px;
+  width: calc(100% - 48px);
 }

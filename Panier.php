@@ -1,11 +1,30 @@
 <?php
-require_once 'includes/db.php';
 session_start();
+require_once 'includes/db.php';
 
 // Vérifier si l'utilisateur est connecté
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: login.php');
+        exit();
+    }
+
+    $user_id = $_SESSION['user_id'];
+
+    if (isset($_POST['action']) && $_POST['action'] === 'remove_for_cart') {
+        $cart_id = $_POST['cart_id'] ?? null;
+
+        if ($cart_id){
+            $stmt = $conn->prepare('DELETE FROM cart WHERE id = ?');
+            $stmt->execute([$cart_id]);
+            $message = "Article ajouté au panier avec succès.";
+        }
+    }
 }
 
 // Récupérer les articles dans le panier
@@ -23,6 +42,7 @@ $total = 0;
 foreach ($cartItems as $item) {
     $total += $item['prix'];
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -33,62 +53,76 @@ foreach ($cartItems as $item) {
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <nav class="navbar">
-        <a href="index.php" class="logo">MarketPlace</a>
-        <div class="nav-links">
-            <a href="index.php" class="nav-link active">HOME</a>
-            <a href="articles.php" class="nav-link">ARTICLES</a>
-            <a href="Panier.php" class="nav-link">PANIER</a>
-            <?php if (isset($_SESSION['user_id'])): ?>
-                <a href="profile.php" class="nav-link">PROFILE</a>
-            <?php endif; ?>
-        </div>
-        <div class="nav-buttons">
-            <?php if (isset($_SESSION['user_id'])): ?>
-                <a href="profile.php" class="btn-secondary">Mon Profil</a>
-                <a href="vente.php" class="btn-primary">Vends tes articles !</a>
-            <?php else: ?>
-                <a href="register.php" class="btn-secondary">S'inscrire</a>
-                <a href="login.php" class="btn-primary">Se connecter</a>
-            <?php endif; ?>
-        </div>
-    </nav>
+    <div class="container">
+        <nav class="navbar">
+            <a href="index.php" class="logo">MarketPlace</a>
+            <div class="nav-links">
+                <a href="index.php" class="nav-link">HOME</a>
+                <a href="articles.php" class="nav-link">ARTICLES</a>
+                <a href="Panier.php" class="nav-link active">PANIER</a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="profile.php" class="nav-link">PROFILE</a>
+                <?php endif; ?>
+            </div>
+            <div class="nav-buttons">
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="profile.php" class="btn-secondary">Mon Profil</a>
+                    <a href="vente.php" class="btn-primary">Vends tes articles !</a>
+                <?php else: ?>
+                    <a href="register.php" class="btn-secondary">S'inscrire</a>
+                    <a href="login.php" class="btn-primary">Se connecter</a>
+                <?php endif; ?>
+            </div>
+        </nav>
 
-    <div class="cart-container">
-
-        <h1>Mon Panier</h1>
-        
-        <?php if (empty($cartItems)): ?>
-            <div class="cart-items">
-                <div class="cart-item">
-                    <p>Votre panier est vide.</p>
+        <div class="cart-container">        
+            <?php if (empty($cartItems)): ?>
+                <div class="no-articles">
+                    <div class="no-articles-icon">📦</div>
+                    <h2 class="no-articles-title">Aucun article dans le panier</h2>
+                    <p class="no-articles-text">
+                        Il n'y a pas encore d'articles dans votre panier.<br>
+                        Aller faire un tour pour trouver votre bonheur !
+                    </p>
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <a href="articles.php" class="btn-sell">
+                            <span>🪑</span>
+                            Trouver un article
+                        </a>
+                    <?php else: ?>
+                        <a href="register.php" class="btn-sell">
+                            <span>👤</span>
+                            S'inscrire pour acheter
+                        </a>
+                    <?php endif; ?>
                 </div>
-            </div>
-        <?php else: ?>
-            <div class="cart-items">
-                <?php foreach ($cartItems as $item): ?>
-                    <div class="cart-item">
-                        <img src="<?= htmlspecialchars($item['image_url']) ?>" alt="<?= htmlspecialchars($item['nom']) ?>">
-                        <div class="item-details">
-                            <h3><?= htmlspecialchars($item['nom']) ?></h3>
-                            <p><?= htmlspecialchars($item['description']) ?></p>
-                            <p class="price"><?= number_format($item['prix'], 2) ?> €</p>
-                            <form action="remove_from_cart.php" method="POST">
-                                <input type="hidden" name="cart_id" value="<?= $item['cart_id'] ?>">
-                                <button type="submit">Supprimer</button>
-                            </form>
+            <?php else: ?>
+                <div class="cart-items">
+                    <?php foreach ($cartItems as $item): ?>
+                        <div class="cart-item">
+                            <img src="<?= htmlspecialchars($item['image_url']) ?>" alt="<?= htmlspecialchars($item['nom']) ?>">
+                            <div class="item-details">
+                                <h3><?= htmlspecialchars($item['nom']) ?></h3>
+                                <p><?= htmlspecialchars($item['description']) ?></p>
+                                <p class="price"><?= number_format($item['prix'], 2) ?> €</p>
+                                <form method="POST">
+                                    <input type="hidden" name="action" value="remove_for_cart">
+                                    <input type="hidden" name="cart_id" value="<?= $item['cart_id'] ?>">
+                                    <button type="submit" class="btn-delete">Supprimer</button>
+                                </form>
+                            </div>
                         </div>
-                    </div>
-                <?php endforeach; ?>
-            </div>
-            
-            <div class="cart-total">
-                <h3>Total: <?= number_format($total, 2) ?> €</h3>
-                <form action="checkout.php" method="POST">
-                    <button type="submit">Procéder au paiement</button>
-                </form>
-            </div>
-        <?php endif; ?>
+                    <?php endforeach; ?>
+                </div>
+                
+                <div class="cart-total">
+                    <h3>Total: <?= number_format($total, 2) ?> €</h3>
+                    <form action="checkout" method="POST">
+                        <button type="submit">Procéder au paiement</button>
+                    </form>
+                </div>
+            <?php endif; ?>
+        </div>
     </div>
 </body>
 </html>

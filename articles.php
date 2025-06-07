@@ -47,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Récupération de tous les articles avec likes et commentaires
-$sql = "SELECT a.*, u.nom, u.prenom,
+$sql = "SELECT a.*, u.nom as auteur_nom, u.prenom as auteur_prenom,
         COUNT(DISTINCT l.id) as likes_count,
         COUNT(DISTINCT c.id) as comments_count
         FROM articles a 
@@ -87,7 +87,7 @@ if (isset($_SESSION['user_id'])) {
             <div class="nav-links">
                 <a href="index.php" class="nav-link">HOME</a>
                 <a href="articles.php" class="nav-link active">ARTICLES</a>
-                <a href="#" class="nav-link">PANIER</a>
+                <a href="Panier.php" class="nav-link">PANIER</a>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="profile.php" class="nav-link">PROFILE</a>
                 <?php endif; ?>
@@ -170,7 +170,7 @@ if (isset($_SESSION['user_id'])) {
                                     
                                     <div class="article-meta">
                                         <span class="article-author">
-                                            Par <?= htmlspecialchars($article['prenom']) ?> <?= htmlspecialchars($article['nom']) ?>
+                                            Par <?= htmlspecialchars($article['auteur_prenom']) ?> <?= htmlspecialchars($article['auteur_nom']) ?>
                                         </span>
                                         <span class="article-date">
                                             <?= date('d/m/Y', strtotime($article['date_publication'])) ?>

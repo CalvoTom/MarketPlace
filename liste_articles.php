@@ -1,8 +1,4 @@
 <?php
-// Supposons que vous ayez déjà une connexion à la base de données établie dans un fichier inclus
-// include('db_connection.php');
-
-// Récupérer tous les articles de la base de données
 $query = "SELECT id, titre, resume FROM articles";
 $result = $db->query($query);
 $articles = $result->fetchAll(PDO::FETCH_ASSOC);
