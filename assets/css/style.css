@@ -2061,3 +2061,9 @@ em {
   padding: 32px 48px;
   gap: 24px;
 }
+
+.articles-toggle{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}

@@ -24,8 +24,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $article_id = $conn->lastInsertId();
 
         if ($quantity !== null) {
+            $result = $quantity <= 0 ? 1 : $quantity;
             $stmtStock = $conn->prepare('INSERT INTO stock (article_id, quantite) VALUES (?, ?)');
-            $stmtStock->execute([$article_id, $quantity]);
+            $stmtStock->execute([$article_id, $result]); // <-- on insère la valeur corrigée
         }
 
         $message = "Article ajouté avec succès.";
@@ -144,8 +145,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                         name="quantite" 
                                         class="form-input" 
                                         step="1" 
-                                        min="0"
+                                        min="1"
                                         placeholder="0"
+                                        require
                                     >
                                 </div>
                             </div>
