@@ -27,7 +27,7 @@ if ($user_role !== 'admin'  && !isset($_SESSION["profil_edit_authorized"])) {
 $message = "";
 
 // Récupération des infos actuelles
-$sql = "SELECT nom, prenom, email, profile_picture FROM utilisateurs WHERE id = :id";
+$sql = "SELECT id, nom, prenom, email, profile_picture FROM utilisateurs WHERE id = :id";
 $stmt = $conn->prepare($sql);
 $stmt->execute([':id' => $id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -193,16 +193,18 @@ $profileImage = $hasImageInDB
                     </div>
 
                     <!-- Password Section -->
-                    <div class="password-section">
-                        <h3 class="password-title">🔒 Sécurité du compte</h3>
-                        <p class="password-description">
-                            Modifiez votre mot de passe pour renforcer la sécurité de votre compte
-                        </p>
-                        <a href="changePassword.php" class="btn-password">
-                            <span>🔑</span>
-                            Modifier le mot de passe
-                        </a>
-                    </div>
+                    <?php if ($_SESSION['user_id'] === $user['id']) :?>
+                        <div class="password-section">
+                            <h3 class="password-title">🔒 Sécurité du compte</h3>
+                            <p class="password-description">
+                                Modifiez votre mot de passe pour renforcer la sécurité de votre compte
+                            </p>
+                            <a href="changePassword.php" class="btn-password">
+                                <span>🔑</span>
+                                Modifier le mot de passe
+                            </a>
+                        </div>
+                    <?php endif; ?>
 
                     <!-- Form Actions -->
                     <div class="form-actions">

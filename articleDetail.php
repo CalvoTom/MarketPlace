@@ -303,12 +303,12 @@ $comments_count = count($comments);
                         </form>
 
                         <?php if ($_SESSION['user_id'] === $article['auteur_id'] || $_SESSION['role'] === "admin"): ?>
-                        <a class="btn-secondary" href="editArticle.php?id=<?= $article['id'] ?>">✏️ Modifier</a>
-                        <form method="POST">
-                            <input type="hidden" name="action" value="delete_article">
-                            <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
-                            <button type="submit" class="btn-primary">🗑 Supprimer</button>
-                        </form>             
+                            <a class="btn-secondary" href="editArticle.php?id=<?= $article['id'] ?>">✏️ Modifier</a>
+                            <form method="POST">
+                                <input type="hidden" name="action" value="delete_article">
+                                <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
+                                <button type="submit" class="btn-primary">🗑 Supprimer</button>
+                            </form>             
                         <?php endif; ?>
                     </div>
                 </div>
