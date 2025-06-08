@@ -40,24 +40,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $conn->beginTransaction();
 
-            // Create invoice
+            // Créer la facture
             $stmt = $conn->prepare("INSERT INTO invoice (utilisateur_id, montant, adresse_facturation, ville_facturation, code_postal_facturation) 
-                                  VALUES (?, ?, ?, ?, ?)");
+                                    VALUES (?, ?, ?, ?, ?)");
             $stmt->execute([$_SESSION['user_id'], $total, $adresse, $ville, $code_postal]);
 
-            // Update user balance
+            // Transfert d'argent aux vendeurs
+            $stmt = $conn->prepare("
+                SELECT a.auteur_id, a.prix, c.quantite
+                FROM cart c
+                JOIN articles a ON c.article_id = a.id
+                WHERE c.utilisateur_id = ?
+            ");
+            $stmt->execute([$_SESSION['user_id']]);
+            $items = $stmt->fetchAll();
+
+            // Regrouper les montants par vendeur
+            $vendeurs = [];
+            foreach ($items as $item) {
+                $montant = $item['prix'] * $item['quantite'];
+                if (!isset($vendeurs[$item['auteur_id']])) {
+                    $vendeurs[$item['auteur_id']] = 0;
+                }
+                $vendeurs[$item['auteur_id']] += $montant;
+            }
+
+            // Crédite le compte de chaque vendeur
+            foreach ($vendeurs as $auteur_id => $montant) {
+                $stmt = $conn->prepare("UPDATE utilisateurs SET sold = sold + ? WHERE id = ?");
+                $stmt->execute([$montant, $auteur_id]);
+            }
+
+
+            // Débit de l'acheteur
             $stmt = $conn->prepare("UPDATE utilisateurs SET sold = sold - ? WHERE id = ?");
             $stmt->execute([$total, $_SESSION['user_id']]);
 
-            // Empty cart
+            // Vider le panier
             $stmt = $conn->prepare("DELETE FROM cart WHERE utilisateur_id = ?");
             $stmt->execute([$_SESSION['user_id']]);
 
             $conn->commit();
             $success = "Paiement effectué avec succès !";
-            
-            // Redirect after successful payment
             header("refresh:2;url=profile.php");
+
         } catch (Exception $e) {
             $conn->rollBack();
             $error = "Une erreur est survenue lors du paiement.";
