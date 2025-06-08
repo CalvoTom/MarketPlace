@@ -128,7 +128,7 @@ $profileImage = $hasImageInDB
                     <h1 class="profile-name"><?= htmlspecialchars($_SESSION["prenom"] . ' ' . $_SESSION["nom"]) ?></h1>
                     <p class="profile-email"><?= htmlspecialchars($_SESSION["email"]) ?></p>
                     <div class="profile-actions">
-                        <a href="edit.php" class="btn-edit">
+                        <a href="edit.php?id=<?= $_SESSION["user_id"] ?>" class="btn-edit">
                             <span>✏️</span>
                             Modifier mon profil
                         </a>

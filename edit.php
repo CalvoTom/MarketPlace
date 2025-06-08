@@ -7,8 +7,19 @@ if (!isset($_SESSION["user_id"])) {
     exit();
 }
 
-// Vérifie si l'utilisateur a confirmé son mot de passe
-if (!isset($_SESSION["profil_edit_authorized"])) {
+$id = isset($_GET['id']) ? (int)$_GET['id'] : null;
+
+if (!$id) {
+    // Rediriger ou afficher une erreur si aucun ID n'est fourni
+    header("Location: profile.php");
+    exit();
+}
+
+
+$user_role = $_SESSION['role'] ?? null;
+
+// Vérifie si l'utilisateur a confirmé son mot de passe ou est admin
+if ($user_role !== 'admin'  && !isset($_SESSION["profil_edit_authorized"])) {
     header("Location: checkPassword.php");
     exit();
 }
@@ -18,7 +29,7 @@ $message = "";
 // Récupération des infos actuelles
 $sql = "SELECT nom, prenom, email, profile_picture FROM utilisateurs WHERE id = :id";
 $stmt = $conn->prepare($sql);
-$stmt->execute([':id' => $_SESSION["user_id"]]);
+$stmt->execute([':id' => $id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
@@ -28,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $photo = $_FILES["photo"]["tmp_name"];
 
     $params = [
-        ':id' => $_SESSION["user_id"],
+        ':id' => $id,
         ':nom' => $nom,
         ':prenom' => $prenom,
         ':email' => $email,

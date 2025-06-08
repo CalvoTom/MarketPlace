@@ -130,21 +130,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <form method="post">
                 <div class="form-group">
-                    <label for="nom">Nom de l'article :</label>
-                    <input type="text" name="nom" id="nom" value="<?= htmlspecialchars($article['nom']) ?>" required>
+                    <label for="nom" class="form-label">Nom de l'article :</label>
+                    <input type="text" name="nom" id="nom" class="form-input" value="<?= htmlspecialchars($article['nom']) ?>" required>
                 </div>
 
                 <div class="form-group">
-                    <label for="description">Description :</label>
-                    <textarea name="description" id="description" rows="5" required><?= htmlspecialchars($article['description']) ?></textarea>
+                    <label for="description" class="form-label">Description :</label>
+                    <textarea name="description" class="form-textarea" id="description" rows="5" required><?= htmlspecialchars($article['description']) ?></textarea>
                 </div>
 
                 <div class="form-group">
-                    <label for="prix">Prix (€) :</label>
-                    <input type="number" step="0.01" name="prix" id="prix" value="<?= htmlspecialchars($article['prix']) ?>" required>
+                    <label for="prix" class="form-label">Prix (€) :</label>
+                    <input type="number" class="form-input" step="0.01" name="prix" id="prix" value="<?= htmlspecialchars($article['prix']) ?>" required>
                 </div>
 
-                <button type="submit" class="btn-submit">Enregistrer</button>
+                <div class="form-actions">
+                    <a href="dashboard.php" class="btn-cancel">Annuler</a>
+                    <button type="submit" class="btn-primary">Enregistrer</button>
+                </div>
             </form>
         </div>
     </div>
