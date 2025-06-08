@@ -275,17 +275,6 @@ $comments_count = count($comments);
                             </div>
                         </div>
                     </div>
-                    
-                    <?php if ($_SESSION['user_id'] === $article['id'] || $_SESSION['role'] === "admin"): ?>
-                    <div class="action-article">
-                        <a class="btn-secondary" href="editArticle.php?id=<?= $article['id'] ?>">✏️ Modifier</a>
-                        <form method="POST">
-                            <input type="hidden" name="action" value="delete_article">
-                            <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
-                            <button type="submit" class="btn-primary">🗑 Supprimer</button>
-                        </form>             
-                    </div>
-                    <?php endif; ?>
 
                     <div class="stock-info">
                         <?php if ($article['stock_disponible'] > 0): ?>
@@ -308,10 +297,19 @@ $comments_count = count($comments);
                                     <?php endfor; ?>
                                 </select>
                                 <button type="submit" class="btn-cart" <?= ($article['stock_disponible'] <= 0) ? 'disabled' : '' ?>>
-                                    <?= ($article['stock_disponible'] > 0) ? 'Ajouter au panier' : 'Article épuisé' ?>
+                                    <?= ($article['stock_disponible'] > 0) ? 'Acheter' : 'Article épuisé' ?>
                                 </button>
                             </div>
                         </form>
+
+                        <?php if ($_SESSION['user_id'] === $article['auteur_id'] || $_SESSION['role'] === "admin"): ?>
+                        <a class="btn-secondary" href="editArticle.php?id=<?= $article['id'] ?>">✏️ Modifier</a>
+                        <form method="POST">
+                            <input type="hidden" name="action" value="delete_article">
+                            <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
+                            <button type="submit" class="btn-primary">🗑 Supprimer</button>
+                        </form>             
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
