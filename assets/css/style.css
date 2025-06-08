@@ -2118,3 +2118,7 @@ em {
 .cart-form .btn-cart {
     flex: 1;
 }
+
+.img-cta{
+  width: 80%;
+}

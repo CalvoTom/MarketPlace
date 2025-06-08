@@ -73,7 +73,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <!-- Login Section -->
         <section class="login-section fade-in">
             <div class="login-illustration">
-                <div>Connectez-vous à votre compte</div>
+                <img  class="img-cta" src="/img/cta.png" alt="image cta">
             </div>
             
             <div class="login-form-container">

@@ -99,7 +99,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <!-- Register Section -->
         <section class="register-section fade-in">
             <div class="register-illustration">
-                <div>Rejoignez notre communauté</div>
+                <img class="img-cta" src="/img/cta.png" alt="image cta">
             </div>
             
             <div class="register-form-container">
