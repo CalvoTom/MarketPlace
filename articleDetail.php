@@ -8,7 +8,7 @@ if (!isset($_GET['id'])) {
 }
 
 $id = intval($_GET['id']);
-$stmt = $conn->prepare("SELECT a.*, a.nom AS article_nom, u.nom AS user_nom, u.prenom 
+$stmt = $conn->prepare("SELECT a.*, a.id as articles_id, a.nom AS article_nom, u.nom AS user_nom, u.prenom 
                         FROM articles a 
                         LEFT JOIN utilisateurs u ON a.auteur_id = u.id 
                         WHERE a.id = ?");
@@ -68,6 +68,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    if (isset($_POST['action']) && $_POST['action'] === 'add_article') {
+        $article_id = $_POST['articles_id'] ?? null;
+        $user_id = $_POST['user_id'] ?? null;
+        if ($article_id && $user_id) {
+            $stmt = $conn->prepare('INSERT INTO cart (utilisateur_id, article_id) VALUES (?, ?)');
+            $stmt->execute([$user_id, $article_id]);
+            $message = "Article ajouté au panier avec succès.";
+        } else {
+            $message = "Les champs articles id et user id sont obligatoires.";
+        }
+        header("Location: Panier.php");
+        exit();
+    }
+
     header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $id);
     exit();
 }
@@ -99,7 +113,7 @@ $comments_count = count($comments);
             <div class="nav-links">
                 <a href="index.php" class="nav-link">HOME</a>
                 <a href="articles.php" class="nav-link active">ARTICLES</a>
-                <a href="#" class="nav-link">PANIER</a>
+                <a href="panier.php" class="nav-link">PANIER</a>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="profile.php" class="nav-link">PROFILE</a>
                     <a href="articleLike.php" class="nav-link nav-heart">❤️</a>
@@ -216,7 +230,12 @@ $comments_count = count($comments);
 
                     <div class="detail-actions">
                         <a href="javascript:history.back()" class="back-link">Retour aux articles</a>
-                        <button class="btn-cart">Ajouter au panier</button>
+                        <form method="post">
+                            <input type="hidden" name="action" value="add_article">
+                            <input type="hidden" name="articles_id" value="<?= $article['articles_id'] ?>">
+                            <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?? '' ?>">
+                            <button type="submit" class="btn-cart">Ajouter au panier</button>
+                        </form>
                     </div>
                 </div>
             </div>

@@ -80,7 +80,7 @@ $profileImage = $hasImageInDB
             <div class="nav-links">
                 <a href="index.php" class="nav-link">HOME</a>
                 <a href="articles.php" class="nav-link">ARTICLES</a>
-                <a href="#" class="nav-link">PANIER</a>
+                <a href="panier.php" class="nav-link">PANIER</a>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="profile.php" class="nav-link active">PROFILE</a>
                     <a href="articleLike.php" class="nav-link nav-heart">❤️</a>
@@ -139,18 +139,6 @@ $profileImage = $hasImageInDB
                     <div class="detail-item">
                         <span class="detail-label">Membre depuis</span>
                         <span class="detail-value">Janvier 2024</span>
-                    </div>
-                    
-                    <!-- Password Section dans la même carte -->
-                    <div class="password-section-inline">
-                        <h4 class="password-title">🔒 Sécurité du compte</h4>
-                        <p class="password-description">
-                            Modifiez votre mot de passe pour renforcer la sécurité de votre compte
-                        </p>
-                        <a href="changePassword.php" class="btn-password">
-                            <span>🔑</span>
-                            Modifier le mot de passe
-                        </a>
                     </div>
                 </div>
 

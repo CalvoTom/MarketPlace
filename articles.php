@@ -87,7 +87,7 @@ if (isset($_SESSION['user_id'])) {
             <div class="nav-links">
                 <a href="index.php" class="nav-link">HOME</a>
                 <a href="articles.php" class="nav-link active">ARTICLES</a>
-                <a href="#" class="nav-link">PANIER</a>
+                <a href="panier.php" class="nav-link">PANIER</a>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="profile.php" class="nav-link">PROFILE</a>
                     <a href="articleLike.php" class="nav-link nav-heart">❤️</a>
