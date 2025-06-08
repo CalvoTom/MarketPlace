@@ -8,9 +8,12 @@ if (!isset($_GET['id'])) {
 }
 
 $id = intval($_GET['id']);
-$stmt = $conn->prepare("SELECT a.*, a.id as articles_id, a.nom AS article_nom, u.nom AS user_nom, u.prenom 
+$stmt = $conn->prepare("SELECT a.*, a.id as articles_id, a.nom AS article_nom, 
+                        u.nom AS user_nom, u.prenom,
+                        COALESCE(s.quantite, 0) as stock_disponible
                         FROM articles a 
                         LEFT JOIN utilisateurs u ON a.auteur_id = u.id 
+                        LEFT JOIN stock s ON a.id = s.article_id
                         WHERE a.id = ?");
 $stmt->execute([$id]);
 $article = $stmt->fetch();
@@ -71,15 +74,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && $_POST['action'] === 'add_article') {
         $article_id = $_POST['articles_id'] ?? null;
         $user_id = $_POST['user_id'] ?? null;
-        if ($article_id && $user_id) {
-            $stmt = $conn->prepare('INSERT INTO cart (utilisateur_id, article_id) VALUES (?, ?)');
-            $stmt->execute([$user_id, $article_id]);
-            $message = "Article ajouté au panier avec succès.";
-        } else {
-            $message = "Les champs articles id et user id sont obligatoires.";
+        $quantity = (int)($_POST['quantity'] ?? 1);
+
+        if ($article_id && $user_id && $quantity > 0) {
+            // Vérifier le stock disponible
+            $check_stock = $conn->prepare('SELECT quantite FROM stock WHERE article_id = ?');
+            $check_stock->execute([$article_id]);
+            $stock = $check_stock->fetch();
+
+            if (!$stock || $stock['quantite'] < $quantity) {
+                $message = "Désolé, stock insuffisant.";
+            } else {
+                // Vérifier si l'article est déjà dans le panier
+                $check_cart = $conn->prepare('SELECT COUNT(*) as count FROM cart WHERE utilisateur_id = ? AND article_id = ?');
+                $check_cart->execute([$user_id, $article_id]);
+                $in_cart = $check_cart->fetch();
+
+                if ($in_cart['count'] > 0) {
+                    $message = "Cet article est déjà dans votre panier.";
+                } else {
+                    // Ajouter au panier et diminuer le stock
+                    $conn->beginTransaction();
+                    try {
+                        $stmt = $conn->prepare('INSERT INTO cart (utilisateur_id, article_id, quantite) VALUES (?, ?, ?)');
+                        $stmt->execute([$user_id, $article_id, $quantity]);
+
+                        $update_stock = $conn->prepare('UPDATE stock SET quantite = quantite - ? WHERE article_id = ?');
+                        $update_stock->execute([$quantity, $article_id]);
+
+                        $conn->commit();
+                        header("Location: Panier.php");
+                        exit();
+                    } catch (Exception $e) {
+                        $conn->rollBack();
+                        $message = "Une erreur est survenue lors de l'ajout au panier.";
+                    }
+                }
+            }
         }
-        header("Location: Panier.php");
-        exit();
     }
 
     header('Location: ' . $_SERVER['PHP_SELF'] . '?id=' . $id);
@@ -228,13 +260,31 @@ $comments_count = count($comments);
                         </div>
                     </div>
 
+                    <div class="stock-info">
+                        <?php if ($article['stock_disponible'] > 0): ?>
+                            <p class="stock-available">Stock disponible : <?= $article['stock_disponible'] ?></p>
+                        <?php else: ?>
+                            <p class="stock-unavailable">Article épuisé</p>
+                        <?php endif; ?>
+                    </div>
+
                     <div class="detail-actions">
                         <a href="javascript:history.back()" class="back-link">Retour aux articles</a>
-                        <form method="post">
+                        <form method="post" class="cart-form">
                             <input type="hidden" name="action" value="add_article">
                             <input type="hidden" name="articles_id" value="<?= $article['articles_id'] ?>">
                             <input type="hidden" name="user_id" value="<?= $_SESSION['user_id'] ?? '' ?>">
-                            <button type="submit" class="btn-cart">Ajouter au panier</button>
+                            
+                            <div class="quantity-selector">
+                                <select name="quantity" class="form-select" <?= ($article['stock_disponible'] <= 0) ? 'disabled' : '' ?>>
+                                    <?php for($i = 1; $i <= $article['stock_disponible']; $i++): ?>
+                                        <option value="<?= $i ?>"><?= $i ?></option>
+                                    <?php endfor; ?>
+                                </select>
+                                <button type="submit" class="btn-cart" <?= ($article['stock_disponible'] <= 0) ? 'disabled' : '' ?>>
+                                    <?= ($article['stock_disponible'] > 0) ? 'Ajouter au panier' : 'Article épuisé' ?>
+                                </button>
+                            </div>
                         </form>
                     </div>
                 </div>

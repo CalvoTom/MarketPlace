@@ -1986,3 +1986,55 @@ body {
     font-size: 20px;
   }
 }
+
+.stock-info {
+    margin: 16px 0;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f5f5f5;
+}
+
+.stock-available {
+    color: #28a745;
+    font-weight: 600;
+}
+
+.stock-unavailable {
+    color: #dc3545;
+    font-weight: 600;
+}
+
+.btn-cart[disabled] {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+.btn-cart[disabled]:hover {
+    background: #ccc;
+}
+
+.quantity-selector {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.form-select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    min-width: 80px;
+    height: 50px;
+}
+
+.cart-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex: 1;
+}
+
+.cart-form .btn-cart {
+    flex: 1;
+}
