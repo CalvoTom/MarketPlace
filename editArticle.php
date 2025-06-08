@@ -114,7 +114,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 <div class="form-group">
                     <label for="prix" class="form-label">Prix (€) :</label>
-                    <input type="number" class="form-input" step="0.01" name="prix" id="prix" value="<?= htmlspecialchars($article['prix']) ?>" required>
+                    <div class="price-input">
+                        <input type="number" class="form-input" step="0.01" name="prix" id="prix" value="<?= htmlspecialchars($article['prix']) ?>" required>
+                    </div>
                 </div>
 
                 <div class="form-actions">
