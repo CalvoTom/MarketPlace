@@ -2,7 +2,6 @@
 session_start();
 require_once 'includes/db.php';
 
-// Select last articles
 $sql = "SELECT a.id, a.nom, a.description, a.prix, a.date_publication, a.auteur_id, a.image_url,
                u.nom AS auteur_nom, u.prenom AS auteur_prenom,
                COUNT(DISTINCT l.id) as likes_count,
@@ -12,11 +11,12 @@ $sql = "SELECT a.id, a.nom, a.description, a.prix, a.date_publication, a.auteur_
         LEFT JOIN likes l ON a.id = l.article_id
         LEFT JOIN commentaires c ON a.id = c.article_id
         GROUP BY a.id
-        ORDER BY a.date_publication DESC
+        ORDER BY likes_count DESC
         LIMIT 3";
 
 $stmt = $conn->query($sql);
 $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 
 <!DOCTYPE html>
