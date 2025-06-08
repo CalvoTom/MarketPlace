@@ -2,14 +2,39 @@
 session_start();
 require_once 'includes/db.php';
 
-// Récupération de tous les articles
+// Récupération des paramètres de recherche/filtrage
+$search = $_GET['q'] ?? '';
+$tri = $_GET['tri'] ?? '';
+
+// Construction de la requête
 $sql = "SELECT a.id, a.nom, a.description, a.prix, a.date_publication, a.auteur_id, a.image_url,
         u.nom AS auteur_nom, u.prenom AS auteur_prenom
         FROM articles a
         LEFT JOIN utilisateurs u ON a.auteur_id = u.id
-        ORDER BY a.date_publication DESC";
+        WHERE 1";
+
+$params = [];
+
+if (!empty($search)) {
+    $sql .= " AND (a.nom LIKE :search OR a.description LIKE :search)";
+    $params[':search'] = "%$search%";
+}
+
+switch ($tri) {
+    case 'prix_asc':
+        $sql .= " ORDER BY a.prix ASC";
+        break;
+    case 'prix_desc':
+        $sql .= " ORDER BY a.prix DESC";
+        break;
+    case 'date':
+    default:
+        $sql .= " ORDER BY a.date_publication DESC";
+        break;
+}
+
 $stmt = $conn->prepare($sql);
-$stmt->execute();
+$stmt->execute($params);
 $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -67,6 +92,20 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <?= count($articles) ?> article<?= count($articles) > 1 ? 's' : '' ?>
                 </div>
             </div>
+
+            <!-- Filtre & Recherche -->
+            <form method="GET" class="filter-search-form">
+                <input type="text" name="q" placeholder="Rechercher un article..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>" class="search-bar">
+                
+                <select name="tri" class="filter-select">
+                    <option value="">-- Trier par --</option>
+                    <option value="date" <?= (($_GET['tri'] ?? '') === 'date') ? 'selected' : '' ?>>Date de publication</option>
+                    <option value="prix_asc" <?= (($_GET['tri'] ?? '') === 'prix_asc') ? 'selected' : '' ?>>Prix croissant</option>
+                    <option value="prix_desc" <?= (($_GET['tri'] ?? '') === 'prix_desc') ? 'selected' : '' ?>>Prix décroissant</option>
+                </select>
+
+                <button type="submit" class="btn-primary">🔍 Rechercher</button>
+            </form>
 
             <!-- Articles Grid -->
             <?php if (empty($articles)): ?>
