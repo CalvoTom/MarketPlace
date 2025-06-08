@@ -25,6 +25,11 @@ $stmt = $conn->prepare("SELECT * FROM articles WHERE id = :id");
 $stmt->execute([':id' => $article_id]);
 $article = $stmt->fetch(PDO::FETCH_ASSOC);
 
+$stmtStock = $conn->prepare("SELECT quantite FROM stock WHERE article_id = :article_id");
+$stmtStock->execute([':article_id' => $article_id]);
+$stock = $stmtStock->fetch(PDO::FETCH_ASSOC);
+$quantite = $stock ? $stock['quantite'] : 0;
+
 if (!$article) {
     echo "Article non trouvé.";
     exit;
@@ -36,12 +41,13 @@ if ($user_role !== 'admin' && $article['auteur_id'] != $user_id) {
     exit;
 }
 
-// Traitement du formulaire
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nom = htmlspecialchars($_POST['nom']);
     $description = htmlspecialchars($_POST['description']);
     $prix = floatval($_POST['prix']);
+    $quantite = intval($_POST['quantite']);
 
+    // Mise à jour de l'article
     $update = $conn->prepare("UPDATE articles SET nom = :nom, description = :description, prix = :prix WHERE id = :id");
     $update->execute([
         ':nom' => $nom,
@@ -50,11 +56,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ':id' => $article_id
     ]);
 
+    // Met à jour ou insère la quantité
+    $stmtCheck = $conn->prepare("SELECT id FROM stock WHERE article_id = :article_id");
+    $stmtCheck->execute([':article_id' => $article_id]);
+
+    if ($stmtCheck->fetch()) {
+        $updateStock = $conn->prepare("UPDATE stock SET quantite = :quantite WHERE article_id = :article_id");
+        $updateStock->execute([
+            ':quantite' => $quantite,
+            ':article_id' => $article_id
+        ]);
+    } else {
+        $insertStock = $conn->prepare("INSERT INTO stock (article_id, quantite) VALUES (:article_id, :quantite)");
+        $insertStock->execute([
+            ':article_id' => $article_id,
+            ':quantite' => $quantite
+        ]);
+    }
+
     $message = "Article mis à jour avec succès !";
 
-    // Recharger les données
+    // Recharge les données après la mise à jour
     $stmt->execute([':id' => $article_id]);
     $article = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    $stmtStock->execute([':article_id' => $article_id]);
+    $stock = $stmtStock->fetch(PDO::FETCH_ASSOC);
+    $quantite = $stock ? $stock['quantite'] : 0;
 }
 ?>
 <!DOCTYPE html>
@@ -113,6 +141,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="form-group">
                     <label for="description" class="form-label">Description :</label>
                     <textarea name="description" class="form-textarea" id="description" rows="5" required><?= htmlspecialchars($article['description']) ?></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="quantite" class="form-label">Quantité :</label>
+                    <input type="number" name="quantite" id="quantite" class="form-input" min="0" value="<?= htmlspecialchars($quantite) ?>" required>
                 </div>
 
                 <div class="form-group">
