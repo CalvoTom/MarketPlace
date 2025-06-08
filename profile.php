@@ -210,7 +210,9 @@ $profileImage = $hasImageInDB
                     </div>
                     <div class="articles-toggle">
                         <button onclick="toggleArticles('sale')" class="btn btn-primary" id="btn-sale">Mes articles</button>
-                        <button onclick="toggleArticles('buy')" class="btn btn-secondary" id="btn-buy">Mes factures</button>
+                        <?php if ($id == $_SESSION["user_id"]): ?>
+                            <button onclick="toggleArticles('buy')" class="btn btn-secondary" id="btn-buy">Mes factures</button>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -257,34 +259,36 @@ $profileImage = $hasImageInDB
                 </div>
 
                 <!-- Articles achetés -->
-                <div id="articles-buy" class="articles-container" style="display: none;">
-                    <?php if (empty($invoice)): ?>
-                        <div class="no-articles">
-                            <div class="no-articles-icon">🧾</div>
-                            <h4 class="no-articles-title">Aucune facture trouvée</h4>
-                            <p class="no-articles-text">Vous n'avez encore effectué aucun achat.</p>
-                            <?php if ($id == $_SESSION["user_id"]): ?>
-                            <a href="articles.php" class="btn-sell"><span>🛍️</span> Acheter un article</a>
-                            <?php endif; ?>
-                        </div>
-                    <?php else: ?>
-                        <div class="user-articles-grid">
-                            <?php foreach ($invoice as $facture): ?>
-                                <div class="user-article-card">
-                                    <div class="article-content">
-                                        <h4 class="article-name">Facture #<?= htmlspecialchars($facture['id']) ?></h4>
-                                        <p class="article-description">Date : <?= date('d/m/Y H:i', strtotime($facture['date_transaction'])) ?></p>
-                                        <p class="article-description">Montant : <?= number_format($facture['montant'], 2, ',', ' ') ?> €</p>
-                                        <p class="article-description">
-                                            Adresse : <?= htmlspecialchars($facture['adresse_facturation']) ?>,
-                                            <?= htmlspecialchars($facture['ville_facturation']) ?> <?= htmlspecialchars($facture['code_postal_facturation']) ?>
-                                        </p>
+                <?php if ($id == $_SESSION["user_id"]): ?>
+                    <div id="articles-buy" class="articles-container" style="display: none;">
+                        <?php if (empty($invoice)): ?>
+                            <div class="no-articles">
+                                <div class="no-articles-icon">🧾</div>
+                                <h4 class="no-articles-title">Aucune facture trouvée</h4>
+                                <p class="no-articles-text">Vous n'avez encore effectué aucun achat.</p>
+                                <?php if ($id == $_SESSION["user_id"]): ?>
+                                <a href="articles.php" class="btn-sell"><span>🛍️</span> Acheter un article</a>
+                                <?php endif; ?>
+                            </div>
+                        <?php else: ?>
+                            <div class="user-articles-grid">
+                                <?php foreach ($invoice as $facture): ?>
+                                    <div class="user-article-card">
+                                        <div class="article-content">
+                                            <h4 class="article-name">Facture #<?= htmlspecialchars($facture['id']) ?></h4>
+                                            <p class="article-description">Date : <?= date('d/m/Y H:i', strtotime($facture['date_transaction'])) ?></p>
+                                            <p class="article-description">Montant : <?= number_format($facture['montant'], 2, ',', ' ') ?> €</p>
+                                            <p class="article-description">
+                                                Adresse : <?= htmlspecialchars($facture['adresse_facturation']) ?>,
+                                                <?= htmlspecialchars($facture['ville_facturation']) ?> <?= htmlspecialchars($facture['code_postal_facturation']) ?>
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                            <?php endforeach; ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
             </div>
         </section>
     </div>
