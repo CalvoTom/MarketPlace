@@ -62,7 +62,7 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
             <div class="hero-image">
-                Image Hero
+                <img src="/img/image.png" alt="hero image">
             </div>
         </section>
 

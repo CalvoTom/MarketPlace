@@ -113,6 +113,7 @@ body {
 /* Hero Section */
 .hero {
   position: absolute;
+  overflow: hidden;
   width: 1344px;
   height: 592px;
   left: 48px;
@@ -168,13 +169,10 @@ body {
 .hero-image {
   width: 573px;
   height: 400px;
-  background: linear-gradient(135deg, #f8582e, #e04a26);
-  border-radius: 12px;
+  margin-bottom: -5%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-size: 24px;
 }
 
 /* Sections communes */
