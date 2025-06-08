@@ -65,6 +65,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="assets/css/style.css">
     <style>
         .form-container {
+            top: 134px;
+            position: absolut;
             max-width: 600px;
             margin: auto;
             padding: 40px;
@@ -91,32 +93,62 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-<div class="form-container">
-    <a class="back-link" href="<?= ($user_role === 'admin') ? 'admin.php' : 'profile.php' ?>">← Retour</a>
-    <h1>Modifier l'article #<?= $article_id ?></h1>
+    <div class="container">
+     <!-- Navigation -->
+        <nav class="navbar">
+            <a href="index.php" class="logo">MarketPlace</a>
+            <div class="nav-links">
+                <a href="index.php" class="nav-link">HOME</a>
+                <a href="articles.php" class="nav-link">ARTICLES</a>
+                <a href="#" class="nav-link">PANIER</a>
 
-    <?php if ($message): ?>
-        <div class="success-message"><?= $message ?></div>
-    <?php endif; ?>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="profile.php" class="nav-link">PROFILE</a>
+                    <a href="articleLike.php" class="nav-link nav-heart">❤️</a>
+                <?php endif; ?>
 
-    <form method="post">
-        <div class="form-group">
-            <label for="nom">Nom de l'article :</label>
-            <input type="text" name="nom" id="nom" value="<?= htmlspecialchars($article['nom']) ?>" required>
+                <?php if (isset($_SESSION['is_admin']) && $_SESSION['is_admin'] === true): ?>
+                    <a href="admin.php" class="nav-link active">DASHBOARD</a>
+                <?php endif; ?>
+            </div>
+
+            <div class="nav-buttons">
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <a href="profile.php" class="btn-secondary">Mon Profil</a>
+                    <a href="vente.php" class="btn-primary">Vends tes articles !</a>
+                <?php else: ?>
+                    <a href="register.php" class="btn-secondary">S'inscrire</a>
+                    <a href="login.php" class="btn-primary">Se connecter</a>
+                <?php endif; ?>
+            </div>
+        </nav>
+
+        <div class="admin-section">
+            <h1>Modifier l'article n°<?= $article_id ?></h1>
+
+            <?php if ($message): ?>
+                <div class="success-message"><?= $message ?></div>
+            <?php endif; ?>
+
+            <form method="post">
+                <div class="form-group">
+                    <label for="nom">Nom de l'article :</label>
+                    <input type="text" name="nom" id="nom" value="<?= htmlspecialchars($article['nom']) ?>" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description :</label>
+                    <textarea name="description" id="description" rows="5" required><?= htmlspecialchars($article['description']) ?></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="prix">Prix (€) :</label>
+                    <input type="number" step="0.01" name="prix" id="prix" value="<?= htmlspecialchars($article['prix']) ?>" required>
+                </div>
+
+                <button type="submit" class="btn-submit">Enregistrer</button>
+            </form>
         </div>
-
-        <div class="form-group">
-            <label for="description">Description :</label>
-            <textarea name="description" id="description" rows="5" required><?= htmlspecialchars($article['description']) ?></textarea>
-        </div>
-
-        <div class="form-group">
-            <label for="prix">Prix (€) :</label>
-            <input type="number" step="0.01" name="prix" id="prix" value="<?= htmlspecialchars($article['prix']) ?>" required>
-        </div>
-
-        <button type="submit" class="btn-submit">Enregistrer</button>
-    </form>
-</div>
+    </div>
 </body>
 </html>

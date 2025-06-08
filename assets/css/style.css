@@ -181,6 +181,7 @@ body {
 .tendances,
 .articles-section,
 .profile-section,
+.admin-section,
 .edit-section,
 .password-section-page,
 .verification-section,
@@ -197,6 +198,7 @@ body {
 
 .articles-section,
 .profile-section,
+.admin-section,
 .edit-section,
 .password-section-page,
 .verification-section,
@@ -1451,6 +1453,7 @@ body {
   .tendances,
   .articles-section,
   .profile-section,
+  .admin-section,
   .edit-section,
   .sell-section,
   .philosophie,
@@ -1594,6 +1597,7 @@ body {
   }
 
   .articles-section,
+  .admin-section,
   .profile-section,
   .edit-section,
   .sell-section,
@@ -1897,4 +1901,78 @@ body {
   .user-articles-section .articles-title {
     font-size: 20px;
   }
+}
+
+
+.admin-section h2 {
+  font-size: 32px;
+  color: #1e1d19;
+  margin-bottom: 24px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 64px;
+  background-color: #fff;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+table thead {
+  background-color: #f8582e;
+  color: #fff;
+}
+
+table thead th {
+  padding: 16px 12px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+table tbody tr {
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s ease;
+}
+
+table tbody tr:hover {
+  background-color: #fdf3ee;
+}
+
+table tbody td {
+  padding: 14px 12px;
+  font-size: 15px;
+  color: #333;
+}
+
+.inline-form {
+  display: inline;
+  margin-left: 8px;
+}
+
+.edit-link,
+.delete-btn {
+  font-size: 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+em {
+  color: #777;
+  font-style: italic;
+}
+
+.admin-section{
+  background: #f9f4ec;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  padding: 32px 48px;
+  gap: 24px;
 }
