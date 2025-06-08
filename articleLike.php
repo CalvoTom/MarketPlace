@@ -9,14 +9,12 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // Récupération des articles likés par l'utilisateur
-$sql = "SELECT a.*, u.nom, u.prenom,
-        COUNT(DISTINCT l2.id) as likes_count,
-        COUNT(DISTINCT c.id) as comments_count
-        FROM articles a 
+$sql = "SELECT a.*, u.nom AS auteur_nom, u.prenom AS auteur_prenom,
+        COUNT(DISTINCT l2.id) AS likes_count
+        FROM articles a
         JOIN likes l ON a.id = l.article_id
-        JOIN utilisateurs u ON a.auteur_id = u.id 
+        JOIN utilisateurs u ON a.auteur_id = u.id
         LEFT JOIN likes l2 ON a.id = l2.article_id
-        LEFT JOIN commentaires c ON a.id = c.article_id
         WHERE l.utilisateur_id = ?
         GROUP BY a.id
         ORDER BY l.date_like DESC";
@@ -153,7 +151,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     
                                     <div class="article-meta">
                                         <span class="article-author">
-                                            Par <?= htmlspecialchars($article['prenom']) ?> <?= htmlspecialchars($article['nom']) ?>
+                                            Par <?= htmlspecialchars($article['auteur_prenom']) ?> <?= htmlspecialchars($article['auteur_nom']) ?>
                                         </span>
                                         <span class="article-date">
                                             <?= date('d/m/Y', strtotime($article['date_publication'])) ?>
@@ -161,70 +159,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     </div>
                                 </div>
                             </a>
-
-                            <!-- Interactions Section -->
-                            <div class="article-interactions">
-                                <div class="interactions-bar">
-                                    <div class="like-section">
-                                        <form method="post" style="display: inline;">
-                                            <input type="hidden" name="action" value="toggle_like">
-                                            <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
-                                            <button type="submit" class="like-btn liked" title="Retirer des favoris">
-                                                ❤️
-                                            </button>
-                                        </form>
-                                        <span class="like-count"><?= $article['likes_count'] ?> like<?= $article['likes_count'] > 1 ? 's' : '' ?></span>
-                                    </div>
-                                    <button class="comments-toggle" onclick="toggleComments(<?= $article['id'] ?>)">
-                                        💬 <?= $article['comments_count'] ?> commentaire<?= $article['comments_count'] > 1 ? 's' : '' ?>
-                                    </button>
-                                </div>
-
-                                <!-- Comments Section -->
-                                <div class="comments-section" id="comments-<?= $article['id'] ?>">
-                                    <form method="post" class="comment-form">
-                                        <input type="hidden" name="action" value="add_comment">
-                                        <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
-                                        <textarea name="contenu" class="comment-input" placeholder="Écrivez votre commentaire..." required></textarea>
-                                        <button type="submit" class="comment-submit">Commenter</button>
-                                    </form>
-
-                                    <div class="comments-list">
-                                        <?php
-                                        // Récupérer les commentaires pour cet article
-                                        $comments_sql = "SELECT c.contenu, c.date_commentaire, u.prenom, u.nom 
-                                                        FROM commentaires c 
-                                                        JOIN utilisateurs u ON c.utilisateur_id = u.id 
-                                                        WHERE c.article_id = ? 
-                                                        ORDER BY c.date_commentaire DESC 
-                                                        LIMIT 5";
-                                        $comments_stmt = $conn->prepare($comments_sql);
-                                        $comments_stmt->execute([$article['id']]);
-                                        $comments = $comments_stmt->fetchAll(PDO::FETCH_ASSOC);
-                                        ?>
-                                        
-                                        <?php if (empty($comments)): ?>
-                                            <p style="font-size: 12px; color: #999; text-align: center; padding: 16px;">
-                                                Aucun commentaire pour le moment
-                                            </p>
-                                        <?php else: ?>
-                                            <?php foreach ($comments as $comment): ?>
-                                                <div class="comment-item">
-                                                    <div class="comment-author">
-                                                        <?= htmlspecialchars($comment['prenom'] . ' ' . $comment['nom']) ?>
-                                                    </div>
-                                                    <div class="comment-content">
-                                                        <?= nl2br(htmlspecialchars($comment['contenu'])) ?>
-                                                    </div>
-                                                    <div class="comment-date">
-                                                        <?= date('d/m/Y à H:i', strtotime($comment['date_commentaire'])) ?>
-                                                    </div>
-                                                </div>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     <?php endforeach; ?>
                 </div>
