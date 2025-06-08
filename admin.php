@@ -30,50 +30,6 @@ $articles = $stmtArticles->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <title>Admin - Tableau de bord</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 40px;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #eee;
-        }
-        .admin-section {
-            padding: 20px;
-            max-width: 1200px;
-            margin: auto;
-        }
-        h2 {
-            margin-top: 40px;
-            margin-bottom: 10px;
-        }
-        a.edit-link {
-            color: #007BFF;
-            text-decoration: none;
-            margin-right: 10px;
-        }
-        a.edit-link:hover {
-            text-decoration: underline;
-        }
-        form.inline-form {
-            display: inline;
-        }
-        button.delete-btn {
-            background-color: transparent;
-            color: red;
-            border: none;
-            cursor: pointer;
-        }
-        button.delete-btn:hover {
-            text-decoration: underline;
-        }
-    </style>
 </head>
 <body>
     <div class="admin-section">
@@ -106,7 +62,8 @@ $articles = $stmtArticles->fetchAll(PDO::FETCH_ASSOC);
                         <td><?= $user['date_creation'] ?></td>
                         <td>
                             <?php if ($_SESSION['user_id'] != $user['id']): ?>
-                                <form method="POST" action="admin-delete-user.php" class="inline-form" onsubmit="return confirm('Supprimer ce compte ? Cette action est irréversible.')">
+                                <a class="edit-link" href="edit.php?id=<?= $user['id'] ?>">✏️ Modifier</a>
+                                <form method="POST" action="admin-delete-user.php" class="inline-form">
                                     <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
                                     <button type="submit" class="delete-btn">🗑 Supprimer</button>
                                 </form>
@@ -144,7 +101,7 @@ $articles = $stmtArticles->fetchAll(PDO::FETCH_ASSOC);
                         <td><?= $article['date_publication'] ?></td>
                         <td>
                             <a class="edit-link" href="editarticle.php?id=<?= $article['id'] ?>">✏️ Modifier</a>
-                            <form method="POST" action="admin-delete-article.php" class="inline-form" onsubmit="return confirm('Supprimer cet article ? Cette action est irréversible.')">
+                            <form method="POST" action="admin-delete-article.php" class="inline-form">
                                 <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
                                 <button type="submit" class="delete-btn">🗑 Supprimer</button>
                             </form>
