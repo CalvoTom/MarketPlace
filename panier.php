@@ -19,17 +19,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['action']) && $_POST['action'] === 'remove_for_cart') {
         $cart_id = $_POST['cart_id'] ?? null;
 
-        if ($cart_id){
-            $stmt = $conn->prepare('DELETE FROM cart WHERE id = ?');
+        if ($cart_id) {
+            // Récupérer la quantité du panier et l'article_id avant la suppression
+            $stmt = $conn->prepare('SELECT article_id, quantite FROM cart WHERE id = ?');
             $stmt->execute([$cart_id]);
-            $message = "Article ajouté au panier avec succès.";
+            $cart_item = $stmt->fetch();
+
+            if ($cart_item) {
+                $conn->beginTransaction();
+                try {
+                    // Supprimer l'article du panier
+                    $stmt = $conn->prepare('DELETE FROM cart WHERE id = ?');
+                    $stmt->execute([$cart_id]);
+
+                    // Restaurer le stock
+                    $stmt = $conn->prepare('UPDATE stock SET quantite = quantite + ? WHERE article_id = ?');
+                    $stmt->execute([$cart_item['quantite'], $cart_item['article_id']]);
+
+                    $conn->commit();
+                    $message = "Article supprimé du panier avec succès.";
+                } catch (Exception $e) {
+                    $conn->rollBack();
+                    $message = "Une erreur est survenue lors de la suppression.";
+                }
+            }
         }
     }
 }
 
 // Récupérer les articles dans le panier
 $stmt = $conn->prepare("
-    SELECT a.*, c.id as cart_id
+    SELECT a.*, c.id as cart_id, c.quantite as quantity
     FROM cart c
     JOIN articles a ON c.article_id = a.id
     WHERE c.utilisateur_id = ?
@@ -40,7 +60,7 @@ $cartItems = $stmt->fetchAll();
 // Calculer le total
 $total = 0;
 foreach ($cartItems as $item) {
-    $total += $item['prix'];
+    $total += $item['prix'] * $item['quantity'];
 }
 
 ?>
@@ -110,7 +130,10 @@ foreach ($cartItems as $item) {
                             <div class="item-details">
                                 <h3><?= htmlspecialchars($item['nom']) ?></h3>
                                 <p><?= htmlspecialchars($item['description']) ?></p>
-                                <p class="price"><?= number_format($item['prix'], 2) ?> €</p>
+                                <p class="price">
+                                    <?= number_format($item['prix'], 2) ?> € x <?= $item['quantity'] ?> 
+                                    = <?= number_format($item['prix'] * $item['quantity'], 2) ?> €
+                                </p>
                                 <form method="POST">
                                     <input type="hidden" name="action" value="remove_for_cart">
                                     <input type="hidden" name="cart_id" value="<?= $item['cart_id'] ?>">
