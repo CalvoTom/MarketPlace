@@ -317,7 +317,10 @@ $comments_count = count($comments);
             </div>
         </section>
     </div>
-
+    <!-- Footer -->
+    <footer class="footer">
+        <h2 class="footer-title">MARKETPLACE</h2>
+    </footer>
     <script>
         function toggleComments() {
             const commentsSection = document.getElementById('comments-section');

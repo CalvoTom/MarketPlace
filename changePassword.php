@@ -126,7 +126,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </section>
     </div>
-
+    <!-- Footer -->
+    <footer class="footer">
+        <h2 class="footer-title">MARKETPLACE</h2>
+    </footer>
     <script>
         // Input focus effects only
         document.querySelectorAll('.form-input').forEach(input => {

@@ -180,7 +180,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </section>
     </div>
-
+    <!-- Footer -->
+    <footer class="footer">
+        <h2 class="footer-title">MARKETPLACE</h2>
+    </footer>
     <script>
         // Form validation
         function validateForm(form) {

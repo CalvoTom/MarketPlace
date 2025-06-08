@@ -146,7 +146,10 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endif; ?>
         </section>
     </div>
-
+    <!-- Footer -->
+    <footer class="footer">
+        <h2 class="footer-title">MARKETPLACE</h2>
+    </footer>
     <script>
         // Hover effects for article cards
         document.querySelectorAll('.article-card').forEach(card => {

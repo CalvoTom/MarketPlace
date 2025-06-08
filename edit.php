@@ -212,7 +212,10 @@ $profileImage = $hasImageInDB
             </div>
         </section>
     </div>
-
+    <!-- Footer -->
+    <footer class="footer">
+        <h2 class="footer-title">MARKETPLACE</h2>
+    </footer>
     <script>
         // Photo preview only
         document.getElementById('photoInput').addEventListener('change', function(e) {

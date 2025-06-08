@@ -164,5 +164,9 @@ $articles = $stmtArticles->fetchAll(PDO::FETCH_ASSOC);
             </table>
         </div>
     </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <h2 class="footer-title">MARKETPLACE</h2>
+    </footer>
 </body>
 </html>

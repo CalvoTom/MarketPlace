@@ -11,7 +11,8 @@ $sql = "SELECT a.id, a.nom, a.description, a.prix, a.date_publication, a.auteur_
         LEFT JOIN likes l ON a.id = l.article_id
         LEFT JOIN commentaires c ON a.id = c.article_id
         GROUP BY a.id
-        ORDER BY a.date_publication DESC";
+        ORDER BY a.date_publication DESC
+        LIMIT 3";
 
 $stmt = $conn->query($sql);
 $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -122,12 +123,11 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php endif; ?>
             </div>
         </section>
-        <!-- Footer -->
-        <footer class="footer">
-            <h2 class="footer-title">MARKETPLACE</h2>
-        </footer>
     </div>
-
+    <!-- Footer -->
+    <footer class="footer">
+        <h2 class="footer-title">MARKETPLACE</h2>
+    </footer>
     <script>
         // Button hover effects
         document.querySelectorAll('button').forEach(button => {

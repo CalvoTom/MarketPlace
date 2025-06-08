@@ -123,6 +123,18 @@ foreach ($cartItems as $item) {
                     <?php endif; ?>
                 </div>
             <?php else: ?>
+                <div class="articles-header">
+                    <div class="header-content">
+                        <div class="articles-icon">🛍️</div>
+                        <div>
+                            <h1 class="articles-title">Mon Panier</h1>
+                        </div>
+                    </div>
+                    <div class="articles-count">
+                        <?= count($cartItems) ?> article<?= count($cartItems) > 1 ? 's' : '' ?>
+                    </div>
+                </div>
+
                 <div class="cart-items">
                     <?php foreach ($cartItems as $item): ?>
                         <div class="cart-item">
@@ -137,7 +149,7 @@ foreach ($cartItems as $item) {
                                 <form method="POST">
                                     <input type="hidden" name="action" value="remove_for_cart">
                                     <input type="hidden" name="cart_id" value="<?= $item['cart_id'] ?>">
-                                    <button type="submit" class="btn-primary">Supprimer</button>
+                                    <button type="submit" class="btn-secondary">Supprimer</button>
                                 </form>
                             </div>
                         </div>
@@ -153,5 +165,9 @@ foreach ($cartItems as $item) {
             <?php endif; ?>
         </div>
     </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <h2 class="footer-title">MARKETPLACE</h2>
+    </footer>
 </body>
 </html>

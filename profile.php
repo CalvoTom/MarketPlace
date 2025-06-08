@@ -70,21 +70,11 @@ $stmt_articles->execute([':user_id' => $_SESSION["user_id"]]);
 $user_articles = $stmt_articles->fetchAll(PDO::FETCH_ASSOC);
 
 $stmt_articles = $conn->prepare("
-    SELECT a.*, 
-            i.date_transaction,
-            COUNT(DISTINCT l.id) AS likes_count,
-            COUNT(DISTINCT c.id) AS comments_count
-    FROM invoice i
-    JOIN cart ct ON ct.utilisateur_id = i.utilisateur_id
-    JOIN articles a ON a.id = ct.article_id
-    LEFT JOIN likes l ON l.article_id = a.id
-    LEFT JOIN commentaires c ON c.article_id = a.id
-    WHERE i.utilisateur_id = :user_id
-    GROUP BY a.id
-    ORDER BY i.date_transaction DESC
+    SELECT * FROM invoice
+    WHERE invoice.utilisateur_id = :user_id
 ");
 $stmt_articles->execute([':user_id' => $_SESSION["user_id"]]);
-$buy_articles = $stmt_articles->fetchAll(PDO::FETCH_ASSOC);
+$invoice= $stmt_articles->fetchAll(PDO::FETCH_ASSOC);
 
 // Vérifier si une image existe
 $hasImageInDB = !empty($user['profile_picture']);
@@ -203,7 +193,7 @@ $profileImage = $hasImageInDB
                     </div>
                     <div class="articles-toggle">
                         <button onclick="toggleArticles('sale')" class="btn btn-primary" id="btn-sale">Mes articles</button>
-                        <button onclick="toggleArticles('buy')" class="btn btn-secondary" id="btn-buy">Mes achats</button>
+                        <button onclick="toggleArticles('buy')" class="btn btn-secondary" id="btn-buy">Mes factures</button>
                     </div>
                 </div>
 
@@ -249,38 +239,26 @@ $profileImage = $hasImageInDB
 
                 <!-- Articles achetés -->
                 <div id="articles-buy" class="articles-container" style="display: none;">
-                    <?php if (empty($buy_articles)): ?>
+                    <?php if (empty($invoice)): ?>
                         <div class="no-articles">
-                            <div class="no-articles-icon">🛒</div>
-                            <h4 class="no-articles-title">Aucun article acheté</h4>
-                            <p class="no-articles-text">Vous n'avez pas encore acheté d'article.</p>
-                            <a href="articles.php" class="btn-sell"><span>💳</span>Acheté un article</a>
+                            <div class="no-articles-icon">🧾</div>
+                            <h4 class="no-articles-title">Aucune facture trouvée</h4>
+                            <p class="no-articles-text">Vous n'avez encore effectué aucun achat.</p>
+                            <a href="articles.php" class="btn-sell"><span>🛍️</span> Acheter un article</a>
                         </div>
                     <?php else: ?>
                         <div class="user-articles-grid">
-                            <?php foreach ($buy_articles as $article): ?>
+                            <?php foreach ($invoice as $facture): ?>
                                 <div class="user-article-card">
-                                    <a href="articleDetail.php?id=<?= $article['id'] ?>" style="text-decoration: none; color: inherit;">
-                                        <?php if (!empty($article['image_url'])): ?>
-                                            <img src="<?= htmlspecialchars($article['image_url']) ?>" 
-                                                alt="<?= htmlspecialchars($article['nom']) ?>" 
-                                                class="article-image"
-                                                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                            <div class="article-image" style="display: none; background: #ccc; color: white;">📷 Image non disponible</div>
-                                        <?php else: ?>
-                                            <div class="article-image" style="background: #ccc; display: flex; align-items: center; justify-content: center;">📷 Aucune image</div>
-                                        <?php endif; ?>
-
-                                        <div class="article-content">
-                                            <h4 class="article-name"><?= htmlspecialchars($article['nom']) ?></h4>
-                                            <p class="article-description"><?= htmlspecialchars($article['description']) ?></p>
-                                            <div class="article-price"><?= number_format($article['prix'], 2, ',', ' ') ?> €</div>
-                                            <div class="article-meta">
-                                                ❤️ <?= $article['likes_count'] ?> | 💬 <?= $article['comments_count'] ?> |
-                                                <span><?= date('d/m/Y', strtotime($article['date_publication'])) ?></span>
-                                            </div>
-                                        </div>
-                                    </a>
+                                    <div class="article-content">
+                                        <h4 class="article-name">Facture #<?= htmlspecialchars($facture['id']) ?></h4>
+                                        <p class="article-description">Date : <?= date('d/m/Y H:i', strtotime($facture['date_transaction'])) ?></p>
+                                        <p class="article-description">Montant : <?= number_format($facture['montant'], 2, ',', ' ') ?> €</p>
+                                        <p class="article-description">
+                                            Adresse : <?= htmlspecialchars($facture['adresse_facturation']) ?>,
+                                            <?= htmlspecialchars($facture['ville_facturation']) ?> <?= htmlspecialchars($facture['code_postal_facturation']) ?>
+                                        </p>
+                                    </div>
                                 </div>
                             <?php endforeach; ?>
                         </div>
@@ -289,6 +267,10 @@ $profileImage = $hasImageInDB
             </div>
         </section>
     </div>
+    <!-- Footer -->
+    <footer class="footer">
+        <h2 class="footer-title">MARKETPLACE</h2>
+    </footer>
 
     <script>
         // Animation du solde
