@@ -215,7 +215,9 @@ $comments_count = count($comments);
                     </div>
                     
                     <div class="detail-meta">
-                        Vendu par <?= htmlspecialchars($article['prenom'] . ' ' . $article['user_nom']) ?><br>
+                        Vendu par <a href="profile.php?id=<?= $article['auteur_id'] ?>" class="user-link">
+                            <?= htmlspecialchars($article['prenom'] . ' ' . $article['user_nom']) ?>
+                        </a><br>
                         Publié le <?= date('d/m/Y à H:i', strtotime($article['date_publication'])) ?>
                     </div>
                     
@@ -261,7 +263,9 @@ $comments_count = count($comments);
                                     <?php foreach ($comments as $comment): ?>
                                         <div class="comment-item">
                                             <div class="comment-author">
-                                                <?= htmlspecialchars($comment['prenom'] . ' ' . $comment['nom']) ?>
+                                                <a href="profile.php?id=<?= htmlspecialchars($comment['utilisateur_id']) ?>" class="user-link">
+                                                    <?= htmlspecialchars($comment['prenom'] . ' ' . $comment['nom']) ?>
+                                                </a>
                                             </div>
                                             <div class="comment-content">
                                                 <?= nl2br(htmlspecialchars($comment['contenu'])) ?>

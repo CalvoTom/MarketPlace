@@ -74,16 +74,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
     }
 
-    $message = "Article mis à jour avec succès !";
-
-    // Recharge les données après la mise à jour
-    $stmt->execute([':id' => $article_id]);
-    $article = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    $stmtStock->execute([':article_id' => $article_id]);
-    $stock = $stmtStock->fetch(PDO::FETCH_ASSOC);
-    $quantite = $stock ? $stock['quantite'] : 0;
+    // Redirection vers la page de détail de l'article
+    header("Location: articleDetail.php?id=" . $article_id);
+    exit;
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">

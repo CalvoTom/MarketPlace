@@ -18,6 +18,9 @@ if (isset($_GET['logout'])) {
     exit();
 }
 
+// Détermination de l'id à afficher
+$id = isset($_GET['id']) && is_numeric($_GET['id']) ? (int)$_GET['id'] : $_SESSION["user_id"];
+
 // Gestion des messages de suppression
 $message = '';
 if (isset($_GET['deleted']) && $_GET['deleted'] == '1') {
@@ -30,29 +33,37 @@ if (isset($_GET['deleted']) && $_GET['deleted'] == '1') {
     }
 }
 
-// Récupération de la photo de profil
-$sql = "SELECT profile_picture FROM utilisateurs WHERE id = :id";
+// Récupération des infos de l'utilisateur à afficher
+$sql = "SELECT * FROM utilisateurs WHERE id = :id";
 $stmt = $conn->prepare($sql);
-$stmt->execute([':id' => $_SESSION["user_id"]]);
+$stmt->execute([':id' => $id]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Gestion de l'ajout d'argent
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_money'])) {
+if (!$user) {
+    // Utilisateur non trouvé
+    header("Location: index.php");
+    exit();
+}
+
+// Gestion de l'ajout d'argent (seulement pour le propriétaire du profil)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_money']) && $id == $_SESSION["user_id"]) {
     $addAmount = 100.00;
 
     $sql_update_solde = "UPDATE utilisateurs SET sold = sold + :amount WHERE id = :id";
     $stmt_update_solde = $conn->prepare($sql_update_solde);
     $stmt_update_solde->execute([
         ':amount' => $addAmount,
-        ':id' => $_SESSION["user_id"]
+        ':id' => $id
     ]);
+    // Rafraîchir le solde après ajout
+    header("Location: profile.php");
+    exit();
 }
-
 
 // Récupération du solde utilisateur
 $sql_solde = "SELECT sold FROM utilisateurs WHERE id = :id";
 $stmt_solde = $conn->prepare($sql_solde);
-$stmt_solde->execute([':id' => $_SESSION["user_id"]]);
+$stmt_solde->execute([':id' => $id]);
 $user_solde = $stmt_solde->fetch(PDO::FETCH_ASSOC);
 
 $solde = $user_solde ? $user_solde["sold"] : 0;
@@ -66,14 +77,14 @@ $sql_articles = "SELECT a.*, COUNT(DISTINCT l.id) as likes_count, COUNT(DISTINCT
                 GROUP BY a.id
                 ORDER BY a.date_publication DESC";
 $stmt_articles = $conn->prepare($sql_articles);
-$stmt_articles->execute([':user_id' => $_SESSION["user_id"]]);
+$stmt_articles->execute([':user_id' => $id]);
 $user_articles = $stmt_articles->fetchAll(PDO::FETCH_ASSOC);
 
 $stmt_articles = $conn->prepare("
     SELECT * FROM invoice
     WHERE invoice.utilisateur_id = :user_id
 ");
-$stmt_articles->execute([':user_id' => $_SESSION["user_id"]]);
+$stmt_articles->execute([':user_id' => $id]);
 $invoice= $stmt_articles->fetchAll(PDO::FETCH_ASSOC);
 
 // Vérifier si une image existe
@@ -129,58 +140,63 @@ $profileImage = $hasImageInDB
             <div class="profile-header">
                 <img src="<?= $profileImage ?>" alt="Photo de profil" class="profile-avatar">
                 <div class="profile-info">
-                    <h1 class="profile-name"><?= htmlspecialchars($_SESSION["prenom"] . ' ' . $_SESSION["nom"]) ?></h1>
-                    <p class="profile-email"><?= htmlspecialchars($_SESSION["email"]) ?></p>
+                    <h1 class="profile-name"><?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></h1>
+                    <p class="profile-email"><?= htmlspecialchars($user['email']) ?></p>
+                    <?php if ($id == $_SESSION["user_id"]): ?>
                     <div class="profile-actions">
                         <a href="edit.php?id=<?= $_SESSION["user_id"] ?>" class="btn-edit">
                             <span>✏️</span>
                             Modifier mon profil
                         </a>
-
                         <form method="get" class="btn-logout" action="">
                             <input style="all: unset;" type="submit" name="logout" value="🚪 Se déconnecter">
                         </form>
                     </div>
+                    <?php endif; ?>
                 </div>
             </div>
-
-            <!-- Profile Details -->
-            <div class="profile-details">
-                <!-- Informations personnelles -->
-                <div class="detail-card">
-                    <h3>Informations personnelles</h3>
-                    <div class="detail-item">
-                        <span class="detail-label">Prénom</span>
-                        <span class="detail-value"><?= htmlspecialchars($_SESSION["prenom"]) ?></span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Nom</span>
-                        <span class="detail-value"><?= htmlspecialchars($_SESSION["nom"]) ?></span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Email</span>
-                        <span class="detail-value"><?= htmlspecialchars($_SESSION["email"]) ?></span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Membre depuis</span>
-                        <span class="detail-value"><?=htmlspecialchars($_SESSION["creation"])?></span>
-                    </div>
-                </div>
-
-                <!-- Solde et finances -->
-                <div class="detail-card">
-                    <h3>Mon portefeuille</h3>
-                    <div class="solde-display">
-                        <div class="solde-amount">
-                            <?= number_format($solde, 2, ',', ' ') ?> €
+            
+            <?php if ($id == $_SESSION["user_id"]): ?>
+                <!-- Profile Details -->
+                <div class="profile-details">
+                    <!-- Informations personnelles -->
+                    <div class="detail-card">
+                        <h3>Informations personnelles</h3>
+                        <div class="detail-item">
+                            <span class="detail-label">Prénom</span>
+                            <span class="detail-value"><?= htmlspecialchars($user['prenom']) ?></span>
                         </div>
-                        <div class="solde-label">Solde disponible</div>
+                        <div class="detail-item">
+                            <span class="detail-label">Nom</span>
+                            <span class="detail-value"><?= htmlspecialchars($user['nom']) ?></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Email</span>
+                            <span class="detail-value"><?= htmlspecialchars($user['email']) ?></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Membre depuis</span>
+                            <span class="detail-value"><?= htmlspecialchars($user['date_creation']) ?></span>
+                        </div>
                     </div>
-                    <form method="post" style="display: inline;">
-                        <button type="submit" name="add_money" class="btn-money">Ajouter</button>
-                    </form>
+
+                    <!-- Solde et finances -->
+                    <div class="detail-card">
+                        <h3>Mon portefeuille</h3>
+                        <div class="solde-display">
+                            <div class="solde-amount">
+                                <?= number_format($solde, 2, ',', ' ') ?> €
+                            </div>
+                            <div class="solde-label">Solde disponible</div>
+                        </div>
+                        <?php if ($id == $_SESSION["user_id"]): ?>
+                        <form method="post" style="display: inline;">
+                            <button type="submit" name="add_money" class="btn-money">Ajouter</button>
+                        </form>
+                        <?php endif; ?>
+                    </div>
                 </div>
-            </div>
+            <?php endif; ?>
 
            <!-- Section Articles-->
             <div class="user-articles-section">
@@ -205,7 +221,9 @@ $profileImage = $hasImageInDB
                             <div class="no-articles-icon">📦</div>
                             <h4 class="no-articles-title">Aucun article en vente</h4>
                             <p class="no-articles-text">Vous n'avez pas encore mis d'articles en vente.<br>Commencez dès maintenant !</p>
+                            <?php if ($id == $_SESSION["user_id"]): ?>
                             <a href="vente.php" class="btn-sell"><span>💰</span>Vendre un article</a>
+                            <?php endif; ?>
                         </div>
                     <?php else: ?>
                         <div class="user-articles-grid">
@@ -245,7 +263,9 @@ $profileImage = $hasImageInDB
                             <div class="no-articles-icon">🧾</div>
                             <h4 class="no-articles-title">Aucune facture trouvée</h4>
                             <p class="no-articles-text">Vous n'avez encore effectué aucun achat.</p>
+                            <?php if ($id == $_SESSION["user_id"]): ?>
                             <a href="articles.php" class="btn-sell"><span>🛍️</span> Acheter un article</a>
+                            <?php endif; ?>
                         </div>
                     <?php else: ?>
                         <div class="user-articles-grid">
