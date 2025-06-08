@@ -29,7 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmtStock->execute([$article_id, $result]);
         }
 
-        $message = "Article ajouté avec succès.";
+        $message = "Article ajouté avec succès.";        
+
+        header("Location: articles.php");
     } else {
         $message = "Les champs nom et prix sont obligatoires.";
     }
@@ -42,7 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarketPlace - Vendre un article</title>
+    <title>MarketPlace</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -213,68 +216,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </section>
     </div>
+
     <!-- Footer -->
     <footer class="footer">
         <h2 class="footer-title">MARKETPLACE</h2>
     </footer>
-    <script>
-        // Image preview
-        document.getElementById('image_link').addEventListener('input', function() {
-            const imageUrl = this.value.trim();
-            const preview = document.getElementById('imagePreview');
-            
-            if (imageUrl) {
-                // Test if the URL is valid by trying to load the image
-                const img = new Image();
-                img.onload = function() {
-                    preview.innerHTML = `<img src="${imageUrl}" alt="Aperçu" class="preview-image">`;
-                };
-                img.onerror = function() {
-                    preview.innerHTML = `
-                        <div class="preview-placeholder">
-                            ❌<br>
-                            Image non trouvée<br>
-                            <small>Vérifiez le lien de l'image</small>
-                        </div>
-                    `;
-                };
-                img.src = imageUrl;
-            } else {
+</body>
+<script>
+    // Image preview
+    document.getElementById('image_link').addEventListener('input', function() {
+        const imageUrl = this.value.trim();
+        const preview = document.getElementById('imagePreview');
+        
+        if (imageUrl) {
+            // Test if the URL is valid by trying to load the image
+            const img = new Image();
+            img.onload = function() {
+                preview.innerHTML = `<img src="${imageUrl}" alt="Aperçu" class="preview-image">`;
+            };
+            img.onerror = function() {
                 preview.innerHTML = `
                     <div class="preview-placeholder">
-                        📷<br>
-                        Aperçu de l'image<br>
-                        <small>Collez un lien d'image pour voir l'aperçu</small>
+                        ❌<br>
+                        Image non trouvée<br>
+                        <small>Vérifiez le lien de l'image</small>
                     </div>
                 `;
-            }
+            };
+            img.src = imageUrl;
+        } else {
+            preview.innerHTML = `
+                <div class="preview-placeholder">
+                    📷<br>
+                    Aperçu de l'image<br>
+                    <small>Collez un lien d'image pour voir l'aperçu</small>
+                </div>
+            `;
+        }
+    });
+
+    // Input focus effects
+    document.querySelectorAll('.form-input, .form-textarea').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentNode.style.transform = 'translateY(-2px)';
+            this.parentNode.style.transition = 'transform 0.2s ease';
         });
 
-        // Input focus effects
-        document.querySelectorAll('.form-input, .form-textarea').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentNode.style.transform = 'translateY(-2px)';
-                this.parentNode.style.transition = 'transform 0.2s ease';
-            });
-
-            input.addEventListener('blur', function() {
-                this.parentNode.style.transform = 'translateY(0)';
-            });
+        input.addEventListener('blur', function() {
+            this.parentNode.style.transform = 'translateY(0)';
         });
+    });
 
-        // Auto-format price
-        document.getElementById('price').addEventListener('input', function() {
-            let value = this.value;
-            if (value && !isNaN(value)) {
-                // Ensure max 2 decimal places
-                if (value.includes('.')) {
-                    const parts = value.split('.');
-                    if (parts[1] && parts[1].length > 2) {
-                        this.value = parseFloat(value).toFixed(2);
-                    }
+    // Auto-format price
+    document.getElementById('price').addEventListener('input', function() {
+        let value = this.value;
+        if (value && !isNaN(value)) {
+            // Ensure max 2 decimal places
+            if (value.includes('.')) {
+                const parts = value.split('.');
+                if (parts[1] && parts[1].length > 2) {
+                    this.value = parseFloat(value).toFixed(2);
                 }
             }
-        });
-    </script>
-</body>
+        }
+    });
+</script>
 </html>

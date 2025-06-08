@@ -138,19 +138,19 @@ $comments_stmt->execute([$id]);
 $comments = $comments_stmt->fetchAll(PDO::FETCH_ASSOC);
 $comments_count = count($comments);
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarketPlace - <?= htmlspecialchars($article['article_nom']) ?></title>
+    <title>MarketPlace</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
     <div class="container">
-         <!-- Navigation -->
+        <!-- Navigation -->
         <nav class="navbar">
             <a href="index.php" class="logo">MarketPlace</a>
             <div class="nav-links">
@@ -177,6 +177,7 @@ $comments_count = count($comments);
             </div>
         </nav>
 
+         <!-- Article -->
         <section class="articles-section">
             <div class="articles-header">
                 <div class="header-content">
@@ -242,7 +243,7 @@ $comments_count = count($comments);
                             </button>
                         </div>
 
-                        <div class="comments-section show" id="comments-section">
+                        <div class="comments-section" id="comments-section">
                             <?php if (isset($_SESSION['user_id'])): ?>
                                 <form method="post" class="comment-form">
                                     <input type="hidden" name="action" value="add_comment">
@@ -295,7 +296,6 @@ $comments_count = count($comments);
                     </div>
 
                     <div class="detail-actions">
-                        <a href="javascript:history.back()" class="back-link">Retour aux articles</a>
                         <form method="post" class="cart-form">
                             <input type="hidden" name="action" value="add_article">
                             <input type="hidden" name="articles_id" value="<?= $article['articles_id'] ?>">
@@ -317,28 +317,31 @@ $comments_count = count($comments);
             </div>
         </section>
     </div>
+
     <!-- Footer -->
     <footer class="footer">
         <h2 class="footer-title">MARKETPLACE</h2>
     </footer>
-    <script>
-        function toggleComments() {
-            const commentsSection = document.getElementById('comments-section');
-            commentsSection.classList.toggle('show');
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const detailImage = document.querySelector('.detail-image-container img');
-            if (detailImage) {
-                detailImage.addEventListener('error', function () {
-                    this.style.display = 'none';
-                    const placeholder = this.nextElementSibling;
-                    if (placeholder) {
-                        placeholder.style.display = 'flex';
-                    }
-                });
-            }
-        });
-    </script>
 </body>
+<script>
+    // Open comments section
+    function toggleComments() {
+        const commentsSection = document.getElementById('comments-section');
+        commentsSection.classList.toggle('show');
+    }
+
+    // Load Image preview
+    document.addEventListener('DOMContentLoaded', function() {
+        const detailImage = document.querySelector('.detail-image-container img');
+        if (detailImage) {
+            detailImage.addEventListener('error', function () {
+                this.style.display = 'none';
+                const placeholder = this.nextElementSibling;
+                if (placeholder) {
+                    placeholder.style.display = 'flex';
+                }
+            });
+        }
+    });
+</script>
 </html>

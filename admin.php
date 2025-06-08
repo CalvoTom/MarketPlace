@@ -53,7 +53,10 @@ $articles = $stmtArticles->fetchAll(PDO::FETCH_ASSOC);
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Admin - Tableau de bord</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MarketPlace</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -86,6 +89,8 @@ $articles = $stmtArticles->fetchAll(PDO::FETCH_ASSOC);
         </nav>
 
         <div class="admin-section">
+
+            <!-- Liste des utilisateurs -->
             <h2>Utilisateurs</h2>
             <table>
                 <thead>
@@ -164,6 +169,7 @@ $articles = $stmtArticles->fetchAll(PDO::FETCH_ASSOC);
             </table>
         </div>
     </div>
+
     <!-- Footer -->
     <footer class="footer">
         <h2 class="footer-title">MARKETPLACE</h2>

@@ -65,7 +65,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarketPlace - Inscription</title>
+    <title>MarketPlace</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -180,138 +181,124 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </section>
     </div>
+
     <!-- Footer -->
     <footer class="footer">
         <h2 class="footer-title">MARKETPLACE</h2>
     </footer>
-    <script>
-        // Form validation
-        function validateForm(form) {
-            const prenom = form.querySelector('input[name="prenom"]').value.trim();
-            const nom = form.querySelector('input[name="nom"]').value.trim();
-            const email = form.querySelector('input[name="email"]').value.trim();
-            const motDePasse = form.querySelector('input[name="mot_de_passe"]').value;
+</body>
+<script>
+    // Form validation
+    function validateForm(form) {
+        const prenom = form.querySelector('input[name="prenom"]').value.trim();
+        const nom = form.querySelector('input[name="nom"]').value.trim();
+        const email = form.querySelector('input[name="email"]').value.trim();
+        const motDePasse = form.querySelector('input[name="mot_de_passe"]').value;
 
-            // Prénom validation
-            if (prenom.length < 2) {
-                showClientError('Le prénom doit contenir au moins 2 caractères');
-                return false;
-            }
-
-            // Nom validation
-            if (nom.length < 2) {
-                showClientError('Le nom doit contenir au moins 2 caractères');
-                return false;
-            }
-
-            // Email validation
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                showClientError('Veuillez entrer une adresse email valide');
-                return false;
-            }
-
-            // Password validation
-            if (motDePasse.length < 6) {
-                showClientError('Le mot de passe doit contenir au moins 6 caractères');
-                return false;
-            }
-
-            return true;
+        // Prénom validation
+        if (prenom.length < 2) {
+            showClientError('Le prénom doit contenir au moins 2 caractères');
+            return false;
         }
 
-        // Client-side error display
-        function showClientError(message) {
-            // Remove existing error messages
-            const existingError = document.querySelector('.client-error-message');
-            if (existingError) {
-                existingError.remove();
+        // Nom validation
+        if (nom.length < 2) {
+            showClientError('Le nom doit contenir au moins 2 caractères');
+            return false;
+        }
+
+        // Email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showClientError('Veuillez entrer une adresse email valide');
+            return false;
+        }
+
+        // Password validation
+        if (motDePasse.length < 6) {
+            showClientError('Le mot de passe doit contenir au moins 6 caractères');
+            return false;
+        }
+
+        return true;
+    }
+
+    // Client-side error display
+    function showClientError(message) {
+        // Remove existing error messages
+        const existingError = document.querySelector('.client-error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+
+        // Create error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'message error-message client-error-message shake';
+        errorDiv.textContent = message;
+
+        // Insert error message
+        const form = document.querySelector('.register-form');
+        form.insertBefore(errorDiv, form.firstChild);
+
+        // Remove error after 5 seconds
+        setTimeout(() => {
+            if (errorDiv.parentNode) {
+                errorDiv.remove();
             }
+        }, 5000);
+    }
 
-            // Create error message
-            const errorDiv = document.createElement('div');
-            errorDiv.className = 'message error-message client-error-message shake';
-            errorDiv.textContent = message;
+    // Form submission handler
+    document.getElementById('registerForm').addEventListener('submit', function(e) {
+        if (!validateForm(this)) {
+            e.preventDefault();
+            return false;
+        }
 
-            // Insert error message
-            const form = document.querySelector('.register-form');
-            form.insertBefore(errorDiv, form.firstChild);
+        // Show loading state
+        const button = this.querySelector('.register-button');
+        const originalText = button.textContent;
+        button.textContent = 'Création du compte...';
+        button.disabled = true;
+    });
 
-            // Remove error after 5 seconds
+    // Input focus effects
+    document.querySelectorAll('.form-input').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentNode.style.transform = 'translateY(-2px)';
+            this.parentNode.style.transition = 'transform 0.2s ease';
+        });
+
+        input.addEventListener('blur', function() {
+            this.parentNode.style.transform = 'translateY(0)';
+        });
+
+        // Real-time validation feedback
+        input.addEventListener('input', function() {
+            this.style.borderColor = '#F8582E';
+            
+            // Remove client error messages when user starts typing
+            const clientError = document.querySelector('.client-error-message');
+            if (clientError) {
+                clientError.remove();
+            }
+        });
+    });
+
+    // Auto-hide server messages after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const messages = document.querySelectorAll('.message:not(.client-error-message)');
+        messages.forEach(message => {
             setTimeout(() => {
-                if (errorDiv.parentNode) {
-                    errorDiv.remove();
+                if (message.parentNode) {
+                    message.style.opacity = '0';
+                    message.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        message.remove();
+                    }, 300);
                 }
             }, 5000);
-        }
-
-        // Form submission handler
-        document.getElementById('registerForm').addEventListener('submit', function(e) {
-            if (!validateForm(this)) {
-                e.preventDefault();
-                return false;
-            }
-
-            // Show loading state
-            const button = this.querySelector('.register-button');
-            const originalText = button.textContent;
-            button.textContent = 'Création du compte...';
-            button.disabled = true;
-
-            // If validation passes, let the form submit normally
-            // The PHP will handle the server-side processing
         });
-
-        // Input focus effects
-        document.querySelectorAll('.form-input').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentNode.style.transform = 'translateY(-2px)';
-                this.parentNode.style.transition = 'transform 0.2s ease';
-            });
-
-            input.addEventListener('blur', function() {
-                this.parentNode.style.transform = 'translateY(0)';
-            });
-
-            // Real-time validation feedback
-            input.addEventListener('input', function() {
-                this.style.borderColor = '#F8582E';
-                
-                // Remove client error messages when user starts typing
-                const clientError = document.querySelector('.client-error-message');
-                if (clientError) {
-                    clientError.remove();
-                }
-            });
-        });
-
-        // Auto-hide server messages after 5 seconds
-        document.addEventListener('DOMContentLoaded', function() {
-            const messages = document.querySelectorAll('.message:not(.client-error-message)');
-            messages.forEach(message => {
-                setTimeout(() => {
-                    if (message.parentNode) {
-                        message.style.opacity = '0';
-                        message.style.transform = 'translateY(-10px)';
-                        setTimeout(() => {
-                            message.remove();
-                        }, 300);
-                    }
-                }, 5000);
-            });
-        });
-
-        // Button hover effects
-        document.querySelectorAll('button, .btn-primary, .btn-secondary').forEach(button => {
-            button.addEventListener('click', function() {
-                if (!this.disabled) {
-                    this.style.transform = 'scale(0.95)';
-                    setTimeout(() => {
-                        this.style.transform = 'scale(1)';
-                    }, 150);
-                }
-            });
-        });
-    </script>
-</body>
+    });
+</script>
 </html>

@@ -59,7 +59,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarketPlace - Mes articles favoris</title>
+    <title>MarketPlace</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -126,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="articles-grid">
                     <?php foreach ($liked_articles as $article): ?>
                         <div class="article-card">
-                            <a href="article-detail.php?id=<?= $article['id'] ?>" style="text-decoration: none; color: inherit;">
+                            <a href="articleDetail.php?id=<?= $article['id'] ?>" style="text-decoration: none; color: inherit;">
                                 <?php if (!empty($article['image_url'])): ?>
                                     <img src="<?= htmlspecialchars($article['image_url']) ?>" 
                                          alt="<?= htmlspecialchars($article['nom']) ?>" 
@@ -230,40 +231,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
         </section>
     </div>
+    
     <!-- Footer -->
     <footer class="footer">
         <h2 class="footer-title">MARKETPLACE</h2>
     </footer>
-    <script>
-        // Toggle comments section
-        function toggleComments(articleId) {
-            const commentsSection = document.getElementById('comments-' + articleId);
-            commentsSection.classList.toggle('show');
-        }
-
-        // Hover effects for article cards
-        document.querySelectorAll('.article-card').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-4px)';
-                this.style.boxShadow = '0px 8px 16px rgba(0, 0, 0, 0.15)';
-            });
-
-            card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = '0px 4px 8px rgba(0, 0, 0, 0.1)';
-            });
-        });
-
-        // Image error handling
-        document.querySelectorAll('.article-image img').forEach(img => {
-            img.addEventListener('error', function() {
-                this.style.display = 'none';
-                const placeholder = this.nextElementSibling;
-                if (placeholder) {
-                    placeholder.style.display = 'flex';
-                }
-            });
-        });
-    </script>
 </body>
+<script>
+    // Toggle comments section
+    function toggleComments(articleId) {
+        const commentsSection = document.getElementById('comments-' + articleId);
+        commentsSection.classList.toggle('show');
+    }
+
+    // Hover effects for article cards
+    document.querySelectorAll('.article-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+            this.style.boxShadow = '0px 8px 16px rgba(0, 0, 0, 0.15)';
+        });
+
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0px 4px 8px rgba(0, 0, 0, 0.1)';
+        });
+    });
+
+    // Image error handling
+    document.querySelectorAll('.article-image img').forEach(img => {
+        img.addEventListener('error', function() {
+            this.style.display = 'none';
+            const placeholder = this.nextElementSibling;
+            if (placeholder) {
+                placeholder.style.display = 'flex';
+            }
+        });
+    });
+</script>
 </html>

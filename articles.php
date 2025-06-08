@@ -2,25 +2,12 @@
 session_start();
 require_once 'includes/db.php';
 
-// Récupération de tous les articles avec likes et commentaires
-$sql = "SELECT 
-    a.id, a.nom, a.description, a.prix, a.date_publication, a.auteur_id, a.image_url,
-    u.nom AS auteur_nom, u.prenom AS auteur_prenom,
-    COALESCE(l.likes_count, 0) AS likes_count,
-    COALESCE(c.comments_count, 0) AS comments_count
-FROM articles a
-LEFT JOIN utilisateurs u ON a.auteur_id = u.id
-LEFT JOIN (
-    SELECT article_id, COUNT(*) AS likes_count
-    FROM likes
-    GROUP BY article_id
-) l ON a.id = l.article_id
-LEFT JOIN (
-    SELECT article_id, COUNT(*) AS comments_count
-    FROM commentaires
-    GROUP BY article_id
-) c ON a.id = c.article_id
-ORDER BY a.date_publication DESC";
+// Récupération de tous les articles
+$sql = "SELECT a.id, a.nom, a.description, a.prix, a.date_publication, a.auteur_id, a.image_url,
+        u.nom AS auteur_nom, u.prenom AS auteur_prenom
+        FROM articles a
+        LEFT JOIN utilisateurs u ON a.auteur_id = u.id
+        ORDER BY a.date_publication DESC";
 $stmt = $conn->prepare($sql);
 $stmt->execute();
 $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -31,7 +18,8 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarketPlace - Tous les articles</title>
+    <title>MarketPlace</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -146,34 +134,35 @@ $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endif; ?>
         </section>
     </div>
+
     <!-- Footer -->
     <footer class="footer">
         <h2 class="footer-title">MARKETPLACE</h2>
     </footer>
-    <script>
-        // Hover effects for article cards
-        document.querySelectorAll('.article-card').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-4px)';
-                this.style.boxShadow = '0px 8px 16px rgba(0, 0, 0, 0.15)';
-            });
-
-            card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0)';
-                this.style.boxShadow = '0px 4px 8px rgba(0, 0, 0, 0.1)';
-            });
-        });
-
-        // Image error handling
-        document.querySelectorAll('.article-image img').forEach(img => {
-            img.addEventListener('error', function() {
-                this.style.display = 'none';
-                const placeholder = this.nextElementSibling;
-                if (placeholder) {
-                    placeholder.style.display = 'flex';
-                }
-            });
-        });
-    </script>
 </body>
+<script>
+    // Hover effects for article cards
+    document.querySelectorAll('.article-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+            this.style.boxShadow = '0px 8px 16px rgba(0, 0, 0, 0.15)';
+        });
+
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0px 4px 8px rgba(0, 0, 0, 0.1)';
+        });
+    });
+
+    // Image error handling
+    document.querySelectorAll('.article-image img').forEach(img => {
+        img.addEventListener('error', function() {
+            this.style.display = 'none';
+            const placeholder = this.nextElementSibling;
+            if (placeholder) {
+                placeholder.style.display = 'flex';
+            }
+        });
+    });
+</script>
 </html>

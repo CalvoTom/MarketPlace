@@ -46,7 +46,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarketPlace - Changer le mot de passe</title>
+    <title>MarketPlace</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -126,22 +127,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             </div>
         </section>
     </div>
+
     <!-- Footer -->
     <footer class="footer">
         <h2 class="footer-title">MARKETPLACE</h2>
     </footer>
-    <script>
-        // Input focus effects only
-        document.querySelectorAll('.form-input').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentNode.style.transform = 'translateY(-2px)';
-                this.parentNode.style.transition = 'transform 0.2s ease';
-            });
-
-            input.addEventListener('blur', function() {
-                this.parentNode.style.transform = 'translateY(0)';
-            });
-        });
-    </script>
 </body>
+<script>
+    // Input focus effects only
+    document.querySelectorAll('.form-input').forEach(input => {
+        input.addEventListener('focus', function() {
+            this.parentNode.style.transform = 'translateY(-2px)';
+            this.parentNode.style.transition = 'transform 0.2s ease';
+        });
+
+        input.addEventListener('blur', function() {
+            this.parentNode.style.transform = 'translateY(0)';
+        });
+    });
+</script>
 </html>

@@ -88,7 +88,8 @@ $profileImage = $hasImageInDB
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MarketPlace - Mon Profil</title>
+    <title>MarketPlace</title>
+    <link rel="icon" type="image/png" href="/img/favicon.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
@@ -267,55 +268,34 @@ $profileImage = $hasImageInDB
             </div>
         </section>
     </div>
+
     <!-- Footer -->
     <footer class="footer">
         <h2 class="footer-title">MARKETPLACE</h2>
     </footer>
-
-    <script>
-        // Animation du solde
-        function animateNumber(element, target) {
-            const start = 0;
-            const duration = 1000;
-            const startTime = performance.now();
-            
-            function update(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const current = start + (target - start) * progress;
-                
-                element.textContent = current.toFixed(2).replace('.', ',') + ' €';
-                
-                if (progress < 1) {
-                    requestAnimationFrame(update);
-                }
-            }
-            
-            requestAnimationFrame(update);
-        }
-        
-        function toggleArticles(view) {
-            const saleSection = document.getElementById('articles-sale');
-            const buySection = document.getElementById('articles-buy');
-            const btnSale = document.getElementById('btn-sale');
-            const btnBuy = document.getElementById('btn-buy');
-
-            if (view === 'sale') {
-                saleSection.style.display = 'block';
-                buySection.style.display = 'none';
-                btnSale.classList.add('btn-primary');
-                btnSale.classList.remove('btn-secondary');
-                btnBuy.classList.remove('btn-primary');
-                btnBuy.classList.add('btn-secondary');
-            } else {
-                saleSection.style.display = 'none';
-                buySection.style.display = 'block';
-                btnSale.classList.remove('btn-primary');
-                btnSale.classList.add('btn-secondary');
-                btnBuy.classList.add('btn-primary');
-                btnBuy.classList.remove('btn-secondary');
-            }
-        }
-    </script>
 </body>
+<script>
+    function toggleArticles(view) {
+        const saleSection = document.getElementById('articles-sale');
+        const buySection = document.getElementById('articles-buy');
+        const btnSale = document.getElementById('btn-sale');
+        const btnBuy = document.getElementById('btn-buy');
+
+        if (view === 'sale') {
+            saleSection.style.display = 'block';
+            buySection.style.display = 'none';
+            btnSale.classList.add('btn-primary');
+            btnSale.classList.remove('btn-secondary');
+            btnBuy.classList.remove('btn-primary');
+            btnBuy.classList.add('btn-secondary');
+        } else {
+            saleSection.style.display = 'none';
+            buySection.style.display = 'block';
+            btnSale.classList.remove('btn-primary');
+            btnSale.classList.add('btn-secondary');
+            btnBuy.classList.add('btn-primary');
+            btnBuy.classList.remove('btn-secondary');
+        }
+    }
+</script>
 </html>
