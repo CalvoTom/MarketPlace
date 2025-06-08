@@ -32,6 +32,9 @@ MarketPlace est une application web de type marketplace réalisée en PHP, pens�
   - Ajout de commentaires sur les articles
   - Affichage des derniers commentaires avec auteur et date
 
+Pour tester le projet en tant qu’administrateur, un compte administrateur est déjà disponible.
+Vous pouvez vous connecter avec l’identifiant **admin@gmail.com** et le mot de passe **admin123**.
+
 ## 🛠️ Technologies utilisées
 
 - **Backend** : PHP (PDO pour la base de données)

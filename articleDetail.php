@@ -129,7 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Récupérer les commentaires
-$comments_stmt = $conn->prepare("SELECT c.contenu, c.date_commentaire, u.prenom, u.nom 
+$comments_stmt = $conn->prepare("SELECT c.contenu, c.date_commentaire, u.id, u.prenom, u.nom 
                                  FROM commentaires c 
                                  JOIN utilisateurs u ON c.utilisateur_id = u.id 
                                  WHERE c.article_id = ? 
@@ -263,7 +263,7 @@ $comments_count = count($comments);
                                     <?php foreach ($comments as $comment): ?>
                                         <div class="comment-item">
                                             <div class="comment-author">
-                                                <a href="profile.php?id=<?= htmlspecialchars($comment['utilisateur_id']) ?>" class="user-link">
+                                                <a href="profile.php?id=<?= htmlspecialchars($comment['id']) ?>" class="user-link">
                                                     <?= htmlspecialchars($comment['prenom'] . ' ' . $comment['nom']) ?>
                                                 </a>
                                             </div>
