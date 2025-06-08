@@ -142,7 +142,7 @@ foreach ($cartItems as $item) {
                 
                 <div class="cart-total">
                     <h3>Total: <?= number_format($total, 2) ?> €</h3>
-                    <form action="checkout" method="POST">
+                    <form action="checkout.php" method="GET">
                         <button type="submit" class="btn-primary">Procéder au paiement</button>
                     </form>
                 </div>
