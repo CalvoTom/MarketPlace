@@ -2237,9 +2237,8 @@ box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 .cart-item img {
-width: 180px;
-height: 180px;
-object-fit: cover;
+  object-fit: cover;
+  width: auto;
 }
 
 .item-details {

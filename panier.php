@@ -45,13 +45,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
+
+    // Nouvelle action pour modifier la quantité
+    if (isset($_POST['action']) && $_POST['action'] === 'update_quantity') {
+        $cart_id = $_POST['cart_id'] ?? null;
+        $new_quantity = (int)($_POST['new_quantity'] ?? 0);
+
+        if ($cart_id && $new_quantity > 0) {
+            // Récupérer les informations actuelles du panier
+            $stmt = $conn->prepare('SELECT article_id, quantite FROM cart WHERE id = ?');
+            $stmt->execute([$cart_id]);
+            $cart_item = $stmt->fetch();
+
+            if ($cart_item) {
+                // Vérifier le stock disponible total (stock actuel + quantité dans le panier)
+                $stmt = $conn->prepare('SELECT quantite FROM stock WHERE article_id = ?');
+                $stmt->execute([$cart_item['article_id']]);
+                $stock_info = $stmt->fetch();
+                
+                $stock_total_disponible = $stock_info['quantite'] + $cart_item['quantite'];
+
+                if ($new_quantity <= $stock_total_disponible) {
+                    $conn->beginTransaction();
+                    try {
+                        // Calculer la différence de quantité
+                        $quantity_diff = $new_quantity - $cart_item['quantite'];
+
+                        // Mettre à jour la quantité dans le panier
+                        $stmt = $conn->prepare('UPDATE cart SET quantite = ? WHERE id = ?');
+                        $stmt->execute([$new_quantity, $cart_id]);
+
+                        // Ajuster le stock (si on augmente la quantité, on diminue le stock et vice versa)
+                        $stmt = $conn->prepare('UPDATE stock SET quantite = quantite - ? WHERE article_id = ?');
+                        $stmt->execute([$quantity_diff, $cart_item['article_id']]);
+
+                        $conn->commit();
+                        $message = "Quantité mise à jour avec succès.";
+                    } catch (Exception $e) {
+                        $conn->rollBack();
+                        $message = "Une erreur est survenue lors de la mise à jour.";
+                    }
+                } else {
+                    $message = "Stock insuffisant. Stock disponible : " . $stock_total_disponible;
+                }
+            }
+        }
+    }
+
+    // Redirection pour éviter la resoumission du formulaire
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit();
 }
 
-// Récupérer les articles dans le panier
+// Récupérer les articles dans le panier avec le stock disponible
 $stmt = $conn->prepare("
-    SELECT a.*, c.id as cart_id, c.quantite as quantity
+    SELECT a.*, c.id as cart_id, c.quantite as quantity,
+           COALESCE(s.quantite, 0) as stock_disponible
     FROM cart c
     JOIN articles a ON c.article_id = a.id
+    LEFT JOIN stock s ON a.id = s.article_id
     WHERE c.utilisateur_id = ?
 ");
 $stmt->execute([$_SESSION['user_id']]);
@@ -138,6 +190,12 @@ foreach ($cartItems as $item) {
                     </div>
                 </div>
 
+                <?php if (isset($message)): ?>
+                    <div class="alert" style="padding: 10px; margin: 10px 0; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 4px;">
+                        <?= htmlspecialchars($message) ?>
+                    </div>
+                <?php endif; ?>
+
                 <div class="cart-items">
                     <?php foreach ($cartItems as $item): ?>
                         <div class="cart-item">
@@ -149,11 +207,31 @@ foreach ($cartItems as $item) {
                                     <?= number_format($item['prix'], 2) ?> € x <?= $item['quantity'] ?> 
                                     = <?= number_format($item['prix'] * $item['quantity'], 2) ?> €
                                 </p>
-                                <form method="POST">
-                                    <input type="hidden" name="action" value="remove_for_cart">
-                                    <input type="hidden" name="cart_id" value="<?= $item['cart_id'] ?>">
-                                    <button type="submit" class="btn-secondary">Supprimer</button>
-                                </form>
+                                
+                                <div class="item-actions">
+                                    <!-- Contrôles de quantité -->
+                                    <form method="POST" class="quantity-controls" id="form_<?= $item['cart_id'] ?>">
+                                        <input type="hidden" name="action" value="update_quantity">
+                                        <input type="hidden" name="cart_id" value="<?= $item['cart_id'] ?>">
+                                        <select name="new_quantity" id="quantity_<?= $item['cart_id'] ?>" class="form-select" onchange="this.form.submit()">
+                                            <?php 
+                                            $max_quantity = $item['stock_disponible'] + $item['quantity'];
+                                            for($i = 1; $i <= $max_quantity; $i++): 
+                                            ?>
+                                                <option value="<?= $i ?>" <?= ($i == $item['quantity']) ? 'selected' : '' ?>>
+                                                    <?= $i ?>
+                                                </option>
+                                            <?php endfor; ?>
+                                        </select>
+                                    </form>
+                                    
+                                    <!-- Bouton supprimer -->
+                                    <form method="POST">
+                                        <input type="hidden" name="action" value="remove_for_cart">
+                                        <input type="hidden" name="cart_id" value="<?= $item['cart_id'] ?>">
+                                        <button type="submit" class="btn-secondary">Supprimer</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     <?php endforeach; ?>
