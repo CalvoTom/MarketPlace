@@ -2,72 +2,28 @@
 session_start();
 require_once 'includes/db.php';
 
-// Traitement des actions (likes et commentaires)
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!isset($_SESSION['user_id'])) {
-        header('Location: login.php');
-        exit();
-    }
-
-    $user_id = $_SESSION['user_id'];
-    
-    // Gestion des likes
-    if (isset($_POST['action']) && $_POST['action'] === 'toggle_like') {
-        $article_id = (int)$_POST['article_id'];
-        
-        // Vérifier si l'utilisateur a déjà liké
-        $check_like = $conn->prepare("SELECT id FROM likes WHERE utilisateur_id = ? AND article_id = ?");
-        $check_like->execute([$user_id, $article_id]);
-        
-        if ($check_like->fetch()) {
-            // Supprimer le like
-            $delete_like = $conn->prepare("DELETE FROM likes WHERE utilisateur_id = ? AND article_id = ?");
-            $delete_like->execute([$user_id, $article_id]);
-        } else {
-            // Ajouter le like
-            $add_like = $conn->prepare("INSERT INTO likes (utilisateur_id, article_id) VALUES (?, ?)");
-            $add_like->execute([$user_id, $article_id]);
-        }
-    }
-    
-    // Gestion des commentaires
-    if (isset($_POST['action']) && $_POST['action'] === 'add_comment') {
-        $article_id = (int)$_POST['article_id'];
-        $contenu = trim($_POST['contenu']);
-        
-        if (!empty($contenu)) {
-            $add_comment = $conn->prepare("INSERT INTO commentaires (utilisateur_id, article_id, contenu) VALUES (?, ?, ?)");
-            $add_comment->execute([$user_id, $article_id, $contenu]);
-        }
-    }
-    
-    // Redirection pour éviter la resoumission
-    header('Location: ' . $_SERVER['PHP_SELF']);
-    exit();
-}
-
 // Récupération de tous les articles avec likes et commentaires
-$sql = "SELECT a.*, u.nom, u.prenom,
-        COUNT(DISTINCT l.id) as likes_count,
-        COUNT(DISTINCT c.id) as comments_count
-        FROM articles a 
-        JOIN utilisateurs u ON a.auteur_id = u.id 
-        LEFT JOIN likes l ON a.id = l.article_id
-        LEFT JOIN commentaires c ON a.id = c.article_id
-        GROUP BY a.id
-        ORDER BY a.date_publication DESC";
+$sql = "SELECT 
+    a.id, a.nom, a.description, a.prix, a.date_publication, a.auteur_id, a.image_url,
+    u.nom AS auteur_nom, u.prenom AS auteur_prenom,
+    COALESCE(l.likes_count, 0) AS likes_count,
+    COALESCE(c.comments_count, 0) AS comments_count
+FROM articles a
+LEFT JOIN utilisateurs u ON a.auteur_id = u.id
+LEFT JOIN (
+    SELECT article_id, COUNT(*) AS likes_count
+    FROM likes
+    GROUP BY article_id
+) l ON a.id = l.article_id
+LEFT JOIN (
+    SELECT article_id, COUNT(*) AS comments_count
+    FROM commentaires
+    GROUP BY article_id
+) c ON a.id = c.article_id
+ORDER BY a.date_publication DESC";
 $stmt = $conn->prepare($sql);
 $stmt->execute();
 $articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Pour chaque article, vérifier si l'utilisateur connecté a liké
-if (isset($_SESSION['user_id'])) {
-    foreach ($articles as &$article) {
-        $check_user_like = $conn->prepare("SELECT id FROM likes WHERE utilisateur_id = ? AND article_id = ?");
-        $check_user_like->execute([$_SESSION['user_id'], $article['id']]);
-        $article['user_liked'] = $check_user_like->fetch() ? true : false;
-    }
-}
 ?>
 
 <!DOCTYPE html>
@@ -146,12 +102,16 @@ if (isset($_SESSION['user_id'])) {
                     <?php foreach ($articles as $article): ?>
                         <div class="article-card">
                             <a href="articleDetail.php?id=<?= $article['id'] ?>" style="text-decoration: none; color: inherit;">
+                                <?php
+                                    $safe_image_url = htmlspecialchars($article['image_url']);
+                                    $unique_image_url = $safe_image_url . '?article_id=' . $article['id'];
+                                ?>
                                 <?php if (!empty($article['image_url'])): ?>
-                                    <img src="<?= htmlspecialchars($article['image_url']) ?>" 
-                                         alt="<?= htmlspecialchars($article['nom']) ?>" 
-                                         class="article-image"
-                                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                    <div class="article-image" style="display: none; background: linear-gradient(135deg, #F8582E, #e04a26); color: white; font-size: 18px;">
+                                    <img src="<?= $unique_image_url ?>"
+                                        alt="<?= htmlspecialchars($article['nom']) ?>"
+                                        class="article-image"
+                                        onerror="handleImageError(this)">
+                                    <div class="article-image-placeholder" style="display: none; background: linear-gradient(135deg, #F8582E, #e04a26); color: white; font-size: 18px; align-items: center; justify-content: center;">
                                         📷 Image non disponible
                                     </div>
                                 <?php else: ?>
@@ -159,19 +119,16 @@ if (isset($_SESSION['user_id'])) {
                                         📷 Aucune image
                                     </div>
                                 <?php endif; ?>
-                                
+
                                 <div class="article-content">
                                     <h3 class="article-name"><?= htmlspecialchars($article['nom']) ?></h3>
-                                    
                                     <?php if (!empty($article['description'])): ?>
                                         <p class="article-description"><?= htmlspecialchars($article['description']) ?></p>
                                     <?php endif; ?>
-                                    
                                     <div class="article-price"><?= number_format($article['prix'], 2) ?> €</div>
-                                    
                                     <div class="article-meta">
                                         <span class="article-author">
-                                            Par <?= htmlspecialchars($article['prenom']) ?> <?= htmlspecialchars($article['nom']) ?>
+                                            Par <?= htmlspecialchars($article['auteur_prenom']) ?> <?= htmlspecialchars($article['auteur_nom']) ?>
                                         </span>
                                         <span class="article-date">
                                             <?= date('d/m/Y', strtotime($article['date_publication'])) ?>
@@ -179,76 +136,6 @@ if (isset($_SESSION['user_id'])) {
                                     </div>
                                 </div>
                             </a>
-
-                            <!-- Interactions Section reste inchangée -->
-                            <div class="article-interactions">
-                                <div class="interactions-bar">
-                                    <div class="like-section">
-                                        <?php if (isset($_SESSION['user_id'])): ?>
-                                            <form method="post" style="display: inline;">
-                                                <input type="hidden" name="action" value="toggle_like">
-                                                <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
-                                                <button type="submit" class="like-btn <?= isset($article['user_liked']) && $article['user_liked'] ? 'liked' : '' ?>">
-                                                    <?= isset($article['user_liked']) && $article['user_liked'] ? '❤️' : '🤍' ?>
-                                                </button>
-                                            </form>
-                                        <?php else: ?>
-                                            <span class="like-btn">🤍</span>
-                                        <?php endif; ?>
-                                        <span class="like-count"><?= $article['likes_count'] ?> like<?= $article['likes_count'] > 1 ? 's' : '' ?></span>
-                                    </div>
-                                    <button class="comments-toggle" onclick="toggleComments(<?= $article['id'] ?>)">
-                                        💬 <?= $article['comments_count'] ?> commentaire<?= $article['comments_count'] > 1 ? 's' : '' ?>
-                                    </button>
-                                </div>
-
-                                <!-- Comments Section -->
-                                <div class="comments-section" id="comments-<?= $article['id'] ?>">
-                                    <?php if (isset($_SESSION['user_id'])): ?>
-                                        <form method="post" class="comment-form">
-                                            <input type="hidden" name="action" value="add_comment">
-                                            <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
-                                            <textarea name="contenu" class="comment-input" placeholder="Écrivez votre commentaire..." required></textarea>
-                                            <button type="submit" class="comment-submit">Commenter</button>
-                                        </form>
-                                    <?php endif; ?>
-
-                                    <div class="comments-list">
-                                        <?php
-                                        // Récupérer les commentaires pour cet article
-                                        $comments_sql = "SELECT c.contenu, c.date_commentaire, u.prenom, u.nom 
-                                                        FROM commentaires c 
-                                                        JOIN utilisateurs u ON c.utilisateur_id = u.id 
-                                                        WHERE c.article_id = ? 
-                                                        ORDER BY c.date_commentaire DESC 
-                                                        LIMIT 5";
-                                        $comments_stmt = $conn->prepare($comments_sql);
-                                        $comments_stmt->execute([$article['id']]);
-                                        $comments = $comments_stmt->fetchAll(PDO::FETCH_ASSOC);
-                                        ?>
-                                        
-                                        <?php if (empty($comments)): ?>
-                                            <p style="font-size: 12px; color: #999; text-align: center; padding: 16px;">
-                                                Aucun commentaire pour le moment
-                                            </p>
-                                        <?php else: ?>
-                                            <?php foreach ($comments as $comment): ?>
-                                                <div class="comment-item">
-                                                    <div class="comment-author">
-                                                        <?= htmlspecialchars($comment['prenom'] . ' ' . $comment['nom']) ?>
-                                                    </div>
-                                                    <div class="comment-content">
-                                                        <?= nl2br(htmlspecialchars($comment['contenu'])) ?>
-                                                    </div>
-                                                    <div class="comment-date">
-                                                        <?= date('d/m/Y à H:i', strtotime($comment['date_commentaire'])) ?>
-                                                    </div>
-                                                </div>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     <?php endforeach; ?>
                 </div>
@@ -257,12 +144,6 @@ if (isset($_SESSION['user_id'])) {
     </div>
 
     <script>
-        // Toggle comments section
-        function toggleComments(articleId) {
-            const commentsSection = document.getElementById('comments-' + articleId);
-            commentsSection.classList.toggle('show');
-        }
-
         // Hover effects for article cards
         document.querySelectorAll('.article-card').forEach(card => {
             card.addEventListener('mouseenter', function() {
