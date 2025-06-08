@@ -19,6 +19,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $_SESSION["email"] = $utilisateur["email"];
             $_SESSION["nom"] = $utilisateur["nom"];
             $_SESSION["prenom"] = $utilisateur["prenom"];
+            $_SESSION["creation"] = $utilisateur["date_creation"];
             $_SESSION["role"] = $utilisateur["role"];
 
             header("Location: index.php");

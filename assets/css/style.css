@@ -2116,3 +2116,26 @@ em {
 .img-cta{
   width: 90%;
 }
+
+.btn-money {
+  width: 117px;
+  height: 46px;
+  border: 1px solid #f8582e;
+  border-radius: 8px;
+  padding-left: 50%;
+  padding-right: 50%;
+  background: transparent;
+  color: #1e1d19;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-money:hover {
+  background: #f8582e;
+  color: #fbf9f5;
+}

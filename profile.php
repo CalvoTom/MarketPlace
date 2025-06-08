@@ -36,6 +36,19 @@ $stmt = $conn->prepare($sql);
 $stmt->execute([':id' => $_SESSION["user_id"]]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
+// Gestion de l'ajout d'argent
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_money'])) {
+    $addAmount = 100.00;
+
+    $sql_update_solde = "UPDATE utilisateurs SET sold = sold + :amount WHERE id = :id";
+    $stmt_update_solde = $conn->prepare($sql_update_solde);
+    $stmt_update_solde->execute([
+        ':amount' => $addAmount,
+        ':id' => $_SESSION["user_id"]
+    ]);
+}
+
+
 // Récupération du solde utilisateur
 $sql_solde = "SELECT sold FROM utilisateurs WHERE id = :id";
 $stmt_solde = $conn->prepare($sql_solde);
@@ -119,7 +132,7 @@ $profileImage = $hasImageInDB
         </nav>
 
         <!-- Profile Section -->
-        <section class="profile-section fade-in">
+        <section class="profile-section">
             <?= $message ?>
             <!-- Profile Header -->
             <div class="profile-header">
@@ -159,7 +172,7 @@ $profileImage = $hasImageInDB
                     </div>
                     <div class="detail-item">
                         <span class="detail-label">Membre depuis</span>
-                        <span class="detail-value">Janvier 2024</span>
+                        <span class="detail-value"><?=htmlspecialchars($_SESSION["creation"])?></span>
                     </div>
                 </div>
 
@@ -172,6 +185,9 @@ $profileImage = $hasImageInDB
                         </div>
                         <div class="solde-label">Solde disponible</div>
                     </div>
+                    <form method="post" style="display: inline;">
+                        <button type="submit" name="add_money" class="btn-money">Ajouter</button>
+                    </form>
                 </div>
             </div>
 
@@ -275,33 +291,6 @@ $profileImage = $hasImageInDB
     </div>
 
     <script>
-        // Animation d'entrée pour les cartes
-        document.addEventListener('DOMContentLoaded', function() {
-            const cards = document.querySelectorAll('.detail-card, .stat-card');
-            cards.forEach((card, index) => {
-                card.style.opacity = '0';
-                card.style.transform = 'translateY(20px)';
-                card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-                
-                setTimeout(() => {
-                    card.style.opacity = '1';
-                    card.style.transform = 'translateY(0)';
-                }, index * 100);
-            });
-        });
-
-        // Effet hover sur les cartes
-        document.querySelectorAll('.detail-card, .stat-card').forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transform = 'translateY(-5px)';
-                this.style.transition = 'transform 0.3s ease';
-            });
-            
-            card.addEventListener('mouseleave', function() {
-                this.style.transform = 'translateY(0)';
-            });
-        });
-
         // Animation du solde
         function animateNumber(element, target) {
             const start = 0;
@@ -322,25 +311,7 @@ $profileImage = $hasImageInDB
             
             requestAnimationFrame(update);
         }
-
-        // Fonction de suppression d'article
-        function deleteArticle(articleId) {
-            if (confirm('Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible.')) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = 'delete-article.php';
-                
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'article_id';
-                input.value = articleId;
-                
-                form.appendChild(input);
-                document.body.appendChild(form);
-                form.submit();
-            }
-        }
-
+        
         function toggleArticles(view) {
             const saleSection = document.getElementById('articles-sale');
             const buySection = document.getElementById('articles-buy');
