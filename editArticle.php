@@ -63,34 +63,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <title>Modifier un article</title>
     <link rel="stylesheet" href="assets/css/style.css">
-    <style>
-        .form-container {
-            top: 134px;
-            position: absolut;
-            max-width: 600px;
-            margin: auto;
-            padding: 40px;
-        }
-        .form-group { margin-bottom: 20px; }
-        label, input, textarea { display: block; width: 100%; }
-        input, textarea { padding: 10px; font-size: 16px; }
-        .btn-submit {
-            background-color: #F8582E;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .success-message { color: green; margin-bottom: 20px; }
-        .back-link {
-            display: inline-block;
-            margin-bottom: 20px;
-            color: #007BFF;
-            text-decoration: none;
-        }
-        .back-link:hover { text-decoration: underline; }
-    </style>
 </head>
 <body>
     <div class="container">
@@ -128,6 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="success-message"><?= $message ?></div>
             <?php endif; ?>
 
+            <br>
             <form method="post">
                 <div class="form-group">
                     <label for="nom" class="form-label">Nom de l'article :</label>

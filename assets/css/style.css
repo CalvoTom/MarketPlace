@@ -70,7 +70,7 @@ body {
 }
 
 .btn-secondary {
-  width: 117px;
+  width: 199px;
   height: 46px;
   border: 1px solid #f8582e;
   border-radius: 8px;
@@ -173,6 +173,10 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.articles-section{
+  background: #f9f4ec;
 }
 
 /* Sections communes */
@@ -1701,7 +1705,6 @@ body {
   max-width: 1200px;
   margin: 0 auto 40px auto;
   padding: 40px;
-  background: #fff;
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
 }
@@ -2139,3 +2142,37 @@ em {
   background: #f8582e;
   color: #fbf9f5;
 }
+
+.action-article{
+  display: flex;
+  flex-direction: row;
+  gap: 10%;
+  justify-content: center;
+}
+
+.form-container {
+    top: 134px;
+    position: absolut;
+    max-width: 600px;
+    margin: auto;
+    padding: 40px;
+}
+.form-group { margin-bottom: 20px; }
+label, input, textarea { display: block; width: 100%; }
+input, textarea { padding: 10px; font-size: 16px; }
+.btn-submit {
+    background-color: #F8582E;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+.success-message { color: green; margin-bottom: 20px; }
+.back-link {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: #007BFF;
+    text-decoration: none;
+}
+.back-link:hover { text-decoration: underline; }

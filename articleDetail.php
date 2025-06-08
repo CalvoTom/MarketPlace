@@ -63,6 +63,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
+    // Suppression article 
+    if (isset($_POST['action']) && $_POST['action'] === 'delete_article') {
+        $article_id = intval($_POST['article_id']);
+
+        if ($article_id){
+            $stmt = $conn->prepare("DELETE FROM articles WHERE id = ?");
+            $stmt->execute([$article_id]);
+        }
+    }
+
     if (isset($_POST['action']) && $_POST['action'] === 'add_comment') {
         $contenu = trim($_POST['contenu']);
         if (!empty($contenu)) {
@@ -264,6 +274,17 @@ $comments_count = count($comments);
                             </div>
                         </div>
                     </div>
+                    
+                    <?php if ($_SESSION['user_id'] === $article['id'] || $_SESSION['role'] === "admin"): ?>
+                    <div class="action-article">
+                        <a class="btn-secondary" href="editArticle.php?id=<?= $article['id'] ?>">✏️ Modifier</a>
+                        <form method="POST">
+                            <input type="hidden" name="action" value="delete_article">
+                            <input type="hidden" name="article_id" value="<?= $article['id'] ?>">
+                            <button type="submit" class="btn-primary">🗑 Supprimer</button>
+                        </form>             
+                    </div>
+                    <?php endif; ?>
 
                     <div class="stock-info">
                         <?php if ($article['stock_disponible'] > 0): ?>
