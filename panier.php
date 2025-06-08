@@ -54,14 +54,16 @@ foreach ($cartItems as $item) {
 </head>
 <body>
     <div class="container">
+        <!-- Navigation -->
         <nav class="navbar">
             <a href="index.php" class="logo">MarketPlace</a>
             <div class="nav-links">
                 <a href="index.php" class="nav-link">HOME</a>
                 <a href="articles.php" class="nav-link">ARTICLES</a>
-                <a href="Panier.php" class="nav-link active">PANIER</a>
+                <a href="panier.php" class="nav-link active">PANIER</a>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="profile.php" class="nav-link">PROFILE</a>
+                    <a href="articleLike.php" class="nav-link nav-heart">❤️</a>
                 <?php endif; ?>
             </div>
             <div class="nav-buttons">

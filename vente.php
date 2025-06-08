@@ -13,17 +13,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = $_POST['name'] ?? null;
     $description = $_POST['description'] ?? null;
     $price = $_POST['price'] ?? null;
+    $quantity = $_POST['quantite'] ?? null;
     $image_link = $_POST['image_link'] ?? null;
-    $author_id = $_SESSION['user_id']; // ID de l'utilisateur connecté
+    $author_id = $_SESSION['user_id'];
 
     if ($name && $price) {
         $stmt = $conn->prepare('INSERT INTO articles (nom, description, prix, auteur_id, image_url, date_publication) VALUES (?, ?, ?, ?, ?, NOW())');
         $stmt->execute([$name, $description, $price, $author_id, $image_link]);
+
+        $article_id = $conn->lastInsertId();
+
+        if ($quantity !== null) {
+            $stmtStock = $conn->prepare('INSERT INTO stock (article_id, quantite) VALUES (?, ?)');
+            $stmtStock->execute([$article_id, $quantity]);
+        }
+
         $message = "Article ajouté avec succès.";
     } else {
         $message = "Les champs nom et prix sont obligatoires.";
     }
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -43,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="nav-links">
                 <a href="index.php" class="nav-link">HOME</a>
                 <a href="articles.php" class="nav-link">ARTICLES</a>
-                <a href="#" class="nav-link">PANIER</a>
+                <a href="panier.php" class="nav-link">PANIER</a>
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="profile.php" class="nav-link">PROFILE</a>
                     <a href="articleLike.php" class="nav-link nav-heart">❤️</a>
@@ -80,7 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="user-name">
                         Connecté en tant que : <?= htmlspecialchars($_SESSION['prenom'] ?? '') ?> <?= htmlspecialchars($_SESSION['nom'] ?? 'Utilisateur') ?>
                     </div>
-                    <div class="user-status">✅ Compte vérifié</div>
                 </div>
             </div>
 
@@ -118,6 +127,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     class="form-textarea" 
                                     placeholder="Décrivez votre article en détail : état, caractéristiques, raison de la vente..."
                                 ></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="quantite">
+                                    Quantité
+                                </label>
+                                <div class="quantity-input">
+                                    <input 
+                                        type="number" 
+                                        id="quantite" 
+                                        name="quantite" 
+                                        class="form-input" 
+                                        step="1" 
+                                        min="0"
+                                        placeholder="0"
+                                    >
+                                </div>
                             </div>
 
                             <div class="form-group">
