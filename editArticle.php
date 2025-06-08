@@ -156,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="form-actions">
-                    <a href="dashboard.php" class="btn-cancel">Annuler</a>
+                    <a href="javascript:history.back()" class="btn-cancel">Annuler</a>
                     <button type="submit" class="btn-primary">Enregistrer</button>
                 </div>
             </form>
