@@ -15,11 +15,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $utilisateur = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($utilisateur && password_verify($mot_de_passe, $utilisateur['mot_de_passe'])) {
-            // Authentification réussie
             $_SESSION["user_id"] = $utilisateur["id"];
             $_SESSION["email"] = $utilisateur["email"];
             $_SESSION["nom"] = $utilisateur["nom"];
             $_SESSION["prenom"] = $utilisateur["prenom"];
+            $_SESSION["role"] = $utilisateur["role"];
 
             header("Location: index.php");
             exit();
@@ -43,18 +43,22 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 <body>
     <div class="container">
-        <!-- Navigation -->
+         <!-- Navigation -->
         <nav class="navbar">
             <a href="index.php" class="logo">MarketPlace</a>
             <div class="nav-links">
                 <a href="index.php" class="nav-link">HOME</a>
                 <a href="articles.php" class="nav-link">ARTICLES</a>
                 <a href="panier.php" class="nav-link">PANIER</a>
+                <?php if (isset($_SESSION['role']) && $_SESSION['role'] === "admin"): ?>
+                    <a href="admin.php" class="nav-link">DASHBOARD</a>
+                <?php endif; ?>
+
                 <?php if (isset($_SESSION['user_id'])): ?>
-                    <a href="profile.php" class="nav-link">PROFILE</a>
                     <a href="articleLike.php" class="nav-link nav-heart">❤️</a>
                 <?php endif; ?>
             </div>
+
             <div class="nav-buttons">
                 <?php if (isset($_SESSION['user_id'])): ?>
                     <a href="profile.php" class="btn-secondary">Mon Profil</a>
