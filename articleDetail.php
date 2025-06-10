@@ -7,6 +7,11 @@ if (!isset($_GET['id'])) {
     exit;
 }
 
+if (!isset($_SESSION['user_id'])) {
+    header('Location: login.php');
+    exit;
+}
+
 $id = intval($_GET['id']);
 $stmt = $conn->prepare("SELECT a.*, a.id as articles_id, a.nom AS article_nom, 
                         u.nom AS user_nom, u.prenom,
